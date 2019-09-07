@@ -1,10 +1,10 @@
-project('cpp-meson', 'cpp',
+project('ekutils', 'cpp',
   version : run_command('git', 'describe', '--abbrev=0', '--tags').stdout().strip(),
   default_options : ['warning_level=3',
                      'cpp_std=c++17'])
 
-group = 'com.handtruth'
-maintainer = 'someone <someone@handtruth.com>'
+group = 'com.handtruth.mc'
+maintainer = 'ktlo <ktlo@handtruth.com>'
 
 modules = [
 ]
@@ -16,6 +16,9 @@ module_deps = []
 foreach module : modules
   module_deps += dependency(module, fallback : [module, 'dep'])
 endforeach
+
+module_deps += meson.get_compiler('cpp').find_library('stdc++fs', required : false)
+module_deps += dependency('threads', required : false)
 
 subdir('include')
 subdir('src')

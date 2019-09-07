@@ -1,5 +1,20 @@
 sources = files([
-  'sample_source.cpp'
+  'cli.cpp',
+  'descriptor.cpp',
+  'epoll_d.cpp',
+  'event_d.cpp',
+  'file_d.cpp',
+  'in_stream_d.cpp',
+  'inotify_d.cpp',
+  'out_stream_d.cpp',
+  'parse_essentials.cpp',
+  'reader.cpp',
+  'reallobuf.cpp',
+  'signal_d.cpp',
+  'socket_d.cpp',
+  'stdin_d.cpp',
+  'timer_d.cpp',
+  'uuid.cpp'
 ])
 
 src = include_directories('.')

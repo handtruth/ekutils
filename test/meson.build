@@ -1,5 +1,8 @@
 test_names = [
-  'sample_test'
+  'cli',
+  'inotify',
+  'property',
+  'util'
 ]
 
 test_files = []

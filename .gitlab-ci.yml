@@ -68,13 +68,6 @@ Build:x86_64-alpine-linux-musl:
   dependencies:
     - Restore:x86_64-alpine-linux-musl
 
-Build:x86_64-w64-mingw32:
-  <<: *build
-  variables:
-    TARGET: x86_64-w64-mingw32
-  dependencies:
-    - Restore:x86_64-w64-mingw32
-
 Test:x86_64-linux-gnu: &test
   stage: test
   variables:
@@ -167,11 +160,6 @@ Package:arm-linux-gnueabihf:
   <<: *package
   variables:
     TARGET: arm-linux-gnueabihf
-
-Package:x86_64-w64-mingw32:
-  <<: *package
-  variables:
-    TARGET: x86_64-w64-mingw32
 
 Package:x86_64-alpine-linux-musl:
   <<: *package
