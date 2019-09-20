@@ -25,7 +25,7 @@ void descriptor::set_non_block(bool nonblock) {
 }
 
 std::size_t descriptor::avail() const {
-	std::size_t size;
+	std::size_t size = 0;
 	if (ioctl(handle, FIONREAD, &size) == -1)
 		throw std::system_error(std::make_error_code(std::errc(errno)),
             "error while getting available bytes");

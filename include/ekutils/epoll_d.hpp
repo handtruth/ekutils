@@ -15,9 +15,10 @@
 #include <sys/epoll.h>
 #include <fcntl.h>
 
-#include "ekutils/primitives.hpp"
-#include "ekutils/descriptor.hpp"
-#include "ekutils/delegate.hpp"
+#include <ekutils/primitives.hpp>
+#include <ekutils/descriptor.hpp>
+#include <ekutils/delegate.hpp>
+#include <ekutils/idgen.hpp>
 
 namespace ekutils {
 
@@ -38,14 +39,17 @@ namespace actions {
 
 class epoll_d : public descriptor {
 private:
+	idgen<int> id_gen;
 	struct event_timer {
 		int timeout;
 		std::unique_ptr<delegate_base<void()>> action;
+		int id;
 		bool sudden = true;
 		template <typename F>
-		event_timer(int span, F act) :
+		event_timer(int span, F act, int n) :
 			timeout(span),
-			action(std::make_unique<delegate_t<F, void()>>(act)) {}
+			action(std::make_unique<delegate_t<F, void()>>(act)),
+			id(n) {}
 	};
 	struct timer_cmp {
 		inline bool operator()(const event_timer & a, const event_timer & b) {
@@ -62,10 +66,13 @@ private:
 public:
 	epoll_d();
 	template <typename F, typename Rep, typename Period>
-	void later(std::chrono::duration<Rep, Period> span, F action) {
+	int later(std::chrono::duration<Rep, Period> span, F action) {
 		using namespace std::chrono;
-		timers.emplace(static_cast<int>(duration_cast<milliseconds>(span).count()), action);
+		int id = id_gen.next();
+		timers.emplace(static_cast<int>(duration_cast<milliseconds>(span).count()), action, id);
+		return id;
 	}
+	bool refuse(int task);
 	template <typename F>
 	void add(descriptor & fd, std::uint32_t events, F action) {
 		auto cntxt = new descriptor::record_t<F>(fd, action);

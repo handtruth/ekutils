@@ -5,7 +5,7 @@
 #include <memory>
 #include <iterator>
 
-#include "ekutils/delegate.hpp"
+#include <ekutils/delegate.hpp>
 
 namespace ekutils {
 

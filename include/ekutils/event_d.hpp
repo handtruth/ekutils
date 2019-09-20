@@ -1,7 +1,7 @@
 #ifndef _EVENT_D_HEAD
 #define _EVENT_D_HEAD
 
-#include "ekutils/descriptor.hpp"
+#include <ekutils/descriptor.hpp>
 
 namespace ekutils {
 

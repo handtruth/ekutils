@@ -1,8 +1,8 @@
 #ifndef _IN_STREAM_D_HEAD
 #define _IN_STREAM_D_HEAD
 
-#include "ekutils/in_stream.hpp"
-#include "ekutils/descriptor.hpp"
+#include <ekutils/in_stream.hpp>
+#include <ekutils/descriptor.hpp>
 
 namespace ekutils {
 

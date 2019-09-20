@@ -1,7 +1,7 @@
 #ifndef _REALLOBUF_HEAD
 #define _REALLOBUF_HEAD
 
-#include "ekutils/primitives.hpp"
+#include <ekutils/primitives.hpp>
 
 namespace ekutils {
 

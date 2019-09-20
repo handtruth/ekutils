@@ -4,7 +4,7 @@
 #include <csignal>
 #include <string>
 
-#include "ekutils/descriptor.hpp"
+#include <ekutils/descriptor.hpp>
 
 namespace ekutils {
 

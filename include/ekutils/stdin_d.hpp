@@ -3,7 +3,7 @@
 
 #include <istream>
 
-#include "ekutils/in_stream_d.hpp"
+#include <ekutils/in_stream_d.hpp>
 
 namespace ekutils {
 

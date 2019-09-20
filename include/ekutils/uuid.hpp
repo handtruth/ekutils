@@ -4,7 +4,7 @@
 #include <cinttypes>
 #include <string>
 
-#include "ekutils/primitives.hpp"
+#include <ekutils/primitives.hpp>
 
 namespace ekutils {
 

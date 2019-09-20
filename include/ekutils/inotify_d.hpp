@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <sys/inotify.h>
 
-#include "ekutils/descriptor.hpp"
+#include <ekutils/descriptor.hpp>
 
 namespace fs = std::filesystem;
 

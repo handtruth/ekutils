@@ -1,34 +1,39 @@
 #include "ekutils/reader.hpp"
 
 #include <cstring>
+#include <cassert>
+
+#include <iostream>
 
 namespace ekutils {
 
-const size_t part = 256;
+const std::size_t part = 256;
 
 void reader::fetch() {
 	int s = 0;
 	do {
-	buff.probe(rem + part);
-	s = input.read(buff.data() + rem, part);
-	if (s == -1)
-		return;
-	rem += s;
+		buff.asize(part);
+		s = input.read(buff.data() + buff.size() - part, part);
+		if (s == -1) {
+			buff.ssize(part);
+			return;
+		}
+		buff.ssize(part - s);
 	} while (s == part);
 }
 
 char reader::getc() {
-	if (rem) {
+	if (buff.size()) {
 		char c = *buff.data();
-		std::memmove(buff.data(), buff.data() + 1, --rem);
+		buff.move(1);
 		return c;
 	}
 	return -1;
 }
 
-void reader::gets(std::string & string, size_t length) {
+void reader::gets(std::string & string, std::size_t length) {
 	string.append(reinterpret_cast<const char *>(buff.data()), length);
-	std::memmove(buff.data(), buff.data() + length, rem -= length);
+	buff.move(length);
 }
 
 char reader::read() {
@@ -42,29 +47,32 @@ char reader::read() {
 	return -1;
 }
 
-size_t reader::read(std::string & string, size_t length) {
-	if (rem < length)
+std::size_t reader::read(std::string & string, std::size_t length) {
+	if (buff.size() < length)
 		fetch();
-	size_t toread = std::min(rem, length);
+	std::size_t toread = std::min(buff.size(), length);
 	gets(string, toread);
 	return toread;
 }
 
 bool reader::read_line(std::string & line) {
-	size_t i;
+	std::size_t i;
 	auto ptr = buff.data();
-	for (i = 0; i < rem; i++) {
+	for (i = 0; i < buff.size(); i++) {
 		if (ptr[i] == '\n') {
 			gets(line, i);
-			getc();
+			char c = getc();
+			assert(c == '\n');
 			return true;
 		}
 	}
 	fetch();
-	for (; i < rem; i++) {
+	ptr = buff.data();
+	for (; i < buff.size(); i++) {
 		if (ptr[i] == '\n') {
 			gets(line, i);
-			getc();
+			char c = getc();
+			assert(c == '\n');
 			return true;
 		}
 	}

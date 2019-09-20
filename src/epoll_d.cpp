@@ -27,6 +27,16 @@ void epoll_d::add(descriptor & fd, descriptor::record_base * cntxt, std::uint32_
 	}
 }
 
+bool epoll_d::refuse(int task) {
+	for (auto it = timers.container().begin(); it != timers.container().end(); it++) {
+		if (it->id == task) {
+			timers.container().erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
 void epoll_d::remove(descriptor & fd) {
 	if (epoll_ctl(handle, EPOLL_CTL_DEL, fd.handle, nullptr))
 		throw std::runtime_error(std::string("failed to remove file descriptor from epoll: ") + std::strerror(errno));

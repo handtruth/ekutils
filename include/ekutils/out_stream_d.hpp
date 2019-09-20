@@ -1,8 +1,8 @@
 #ifndef _OUT_STREAM_D_HEAD
 #define _OUT_STREAM_D_HEAD
 
-#include "ekutils/out_stream.hpp"
-#include "ekutils/descriptor.hpp"
+#include <ekutils/out_stream.hpp>
+#include <ekutils/descriptor.hpp>
 
 namespace ekutils {
 
