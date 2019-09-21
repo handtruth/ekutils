@@ -87,8 +87,8 @@ std::string inotify_d::to_string() const noexcept {
 }
 
 std::vector<inotify_d::event_t> inotify_d::read() {
-	static const ssize_t buff_size = 50*(sizeof(inotify_event) + 16);
-	byte_t buffer[buff_size];
+	static const ssize_t buff_size = 20*(sizeof(inotify_event) + 16);
+	byte_t buffer[buff_size] {};
 	std::vector<event_t> result;
 	ssize_t length = ::read(handle, buffer, buff_size);
 	if (length < 0)
@@ -101,7 +101,7 @@ std::vector<inotify_d::event_t> inotify_d::read() {
 		if (it == watchers.end())
 			throw std::runtime_error("watch #" + std::to_string(event->wd) + " is not present in set");
 		std::shared_ptr<watch_t> watch = it->second;
-		result.emplace_back(watch, event->mask, event->name);
+		result.emplace_back(std::move(watch), event->mask, event->name);
 		i += sizeof(inotify_event) + event->len;
 	}
 	return result;

@@ -13,6 +13,7 @@ install_headers([
   'ekutils/in_stream.hpp',
   'ekutils/in_stream_d.hpp',
   'ekutils/inotify_d.hpp',
+  'ekutils/log.hpp',
   'ekutils/mutex_atomic.hpp',
   'ekutils/omem_stream.hpp',
   'ekutils/out_stream.hpp',

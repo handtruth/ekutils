@@ -1,6 +1,7 @@
 test_names = [
   'cli',
   'inotify',
+  'logs',
   'memstream',
   'property',
   'reader',

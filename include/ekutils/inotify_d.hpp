@@ -83,7 +83,7 @@ public:
 	private:
 		std::shared_ptr<const watch_t> wfd;
 	public:
-		event_t(const std::shared_ptr<const watch_t> & w, std::uint32_t m, const char * s) :
+		event_t(std::shared_ptr<const watch_t> && w, std::uint32_t m, const char * s) :
 			wfd(w), mask(m), subject(s) {}
 		std::uint32_t mask;
 		std::string subject;
