@@ -51,24 +51,26 @@ const watch_t & inotify_d::mod_watch(std::uint32_t mask, const watch_t & watch) 
 			"failed to modify watch in inotify (path is \""
 				+ std::string(watch.path()) + "\", new watch mask " + std::to_string(mask) + ")");
 	if (h != watch.handle)
-		throw std::runtime_error("FATAL new watch created! (expected to modify old one)");
+		throw std::runtime_error("FATAL new watch created! (expected modifing old one)");
 	watchers[h]->mask = mask;
 	return watch;
 }
 
 void inotify_d::remove_watch(const watch_t & watch) {
-	for (auto it = watchers.begin(), end = watchers.end(); it != end; it++)
-		if (it->first == watch.handle) {
-			watchers.erase(it);
-			return;
-		}
-	throw std::invalid_argument("no such filesystem watch in inotify: " + std::string(watch.path()));
+	auto iter = watchers.find(watch.handle);
+	if (iter != watchers.end()) {
+		inotify_rm_watch(handle, watch.handle);
+		watchers.erase(iter);
+	} else {
+		throw std::invalid_argument("no such filesystem watch in inotify: " + std::string(watch.path()));
+	}
 }
 
 void inotify_d::remove_watch(const fs::path & path) {
-	fs::path full = fs::weakly_canonical(path);
+	fs::path full = fs::absolute(path);
 	for (auto it = watchers.begin(), end = watchers.end(); it != end; it++)
 		if (it->second->file == full) {
+			inotify_rm_watch(handle, it->first);
 			watchers.erase(it);
 			return;
 		}
@@ -98,11 +100,18 @@ std::vector<inotify_d::event_t> inotify_d::read() {
 	while (i < length) {
 		inotify_event *event = reinterpret_cast<inotify_event *>(buffer + i);
 		auto it = watchers.find(event->wd);
-		if (it == watchers.end())
-			throw std::runtime_error("watch #" + std::to_string(event->wd) + " is not present in set");
-		std::shared_ptr<watch_t> watch = it->second;
-		result.emplace_back(std::move(watch), event->mask, event->name);
+		if (it != watchers.end()) {
+			std::shared_ptr<watch_t> watch = it->second;
+			result.emplace_back(std::move(watch), event->mask, event->name);
+		}
+//#ifdef DEBUG
+		else if (!(event->mask & inev::ignored)) {
+			using namespace std::string_literals;
+			throw std::runtime_error("unexpected watch {subject="s + event->name + ", mask="
+				+ std::to_string(event->mask) + ", handle=" + std::to_string(event->wd) + "}");
+		}
 		i += sizeof(inotify_event) + event->len;
+//#endif // _DEBUG
 	}
 	return result;
 }

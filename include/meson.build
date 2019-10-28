@@ -8,6 +8,7 @@ install_headers([
   'ekutils/event_d.hpp',
   'ekutils/expandbuff.hpp',
   'ekutils/file_d.hpp',
+  'ekutils/fs_listener.hpp',
   'ekutils/idgen.hpp',
   'ekutils/imem_stream.hpp',
   'ekutils/in_stream.hpp',

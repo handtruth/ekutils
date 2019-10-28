@@ -1,5 +1,6 @@
 test_names = [
   'cli',
+  'fs_watcher',
   'inotify',
   'logs',
   'memstream',

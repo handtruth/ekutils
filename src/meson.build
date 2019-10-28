@@ -5,6 +5,7 @@ sources = files([
   'event_d.cpp',
   'expandbuff.cpp',
   'file_d.cpp',
+  'fs_listener.cpp',
   'imem_stream.cpp',
   'in_stream_d.cpp',
   'inotify_d.cpp',

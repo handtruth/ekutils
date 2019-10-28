@@ -32,6 +32,9 @@ namespace inev {
 		move          = IN_MOVE,
 		close         = IN_CLOSE,
 		all           = IN_ALL_EVENTS,
+
+		// Special
+		ignored       = IN_IGNORED
 	};
 }
 
