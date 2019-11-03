@@ -14,7 +14,7 @@ public:
 	virtual std::string to_string() const noexcept override;
 };
 
-extern stdin_d stdin;
+extern stdin_d unin;
 
 } // namespace ekutils
 

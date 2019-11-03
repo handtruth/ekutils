@@ -56,13 +56,13 @@ public:
 	pid_t pid() const noexcept {
 		return p_id;
 	}
-	out_stream_d & stdin() noexcept {
+	out_stream_d & stdin_stream() noexcept {
 		return std_in;
 	}
-	in_stream_d & stdout() noexcept {
+	in_stream_d & stdout_stream() noexcept {
 		return std_out;
 	}
-	in_stream_d & stderr() noexcept {
+	in_stream_d & stderr_stream() noexcept {
 		return std_err;
 	}
 	void kill(sig s);

@@ -13,7 +13,7 @@ test {
 	assert_true(sh.running());
 	assert_equals(3 << 8, sh.wait());
 	std::array<byte_t, 500> stdout_bytes;
-	auto & stdout = sh.stdout();
+	auto & stdout = sh.stdout_stream();
 	assert_equals(int(OUT_STR_SZ), stdout.read_array(stdout_bytes));
 	assert_equals(OUT_STR "\n"s, std::string(reinterpret_cast<const char *>(stdout_bytes.data()), OUT_STR_SZ));
 	assert_false(sh.running());

@@ -18,6 +18,6 @@ std::string stdin_d::to_string() const noexcept {
 	return "stdin";
 }
 
-stdin_d stdin;
+stdin_d unin;
 
 } // namespace ekutils
