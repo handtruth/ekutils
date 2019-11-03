@@ -55,7 +55,7 @@ std::size_t reader::read(std::string & string, std::size_t length) {
 	return toread;
 }
 
-bool reader::read_line(std::string & line) {
+bool reader::readln(std::string & line) {
 	std::size_t i;
 	auto ptr = buff.data();
 	for (i = 0; i < buff.size(); i++) {

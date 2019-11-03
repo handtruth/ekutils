@@ -9,13 +9,12 @@ namespace ekutils {
 
 class stdin_d final : public in_stream_d {
 public:
-	stdin_d() {
-		handle = 0;
-	}
+	stdin_d();
+	stdin_d & operator=(const descriptor & other);
 	virtual std::string to_string() const noexcept override;
 };
 
-extern stdin_d input;
+extern stdin_d stdin;
 
 } // namespace ekutils
 

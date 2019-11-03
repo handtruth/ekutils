@@ -7,7 +7,9 @@ test_names = [
   'property',
   'reader',
   'reallobuffer',
-  'util'
+  'sh_process',
+  'util',
+  'writer_test'
 ]
 
 test_files = []

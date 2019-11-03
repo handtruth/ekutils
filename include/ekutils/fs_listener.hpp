@@ -18,7 +18,7 @@ class fs_listener {
 	inotify_d inotify;
 public:
 	enum class event_t : std::uint8_t {
-		created, updated, removed
+		created, updated, removed, created_in
 	};
 	struct event {
 		fs::path path;
@@ -36,7 +36,7 @@ private:
 		std::string part;
 		std::uint8_t type;
 		watch_t::data_t * ud;
-		std::shared_ptr<node_t> parent;
+		std::weak_ptr<node_t> parent;
 		node_t(const std::string & p, std::uint8_t t, watch_t::data_t * u,
 			const std::shared_ptr<node_t> & ptr) :
 				part(p), type(t), ud(u), parent(ptr) {}
@@ -47,6 +47,7 @@ private:
 	void setup_inotify_bits(node_t & node, const fs::path & path);
 	void rm_watch_recurse(node_t & node, const fs::path & path, std::vector<event> & events);
 	void add_watch_recurse(node_t & node, const fs::path & path, std::vector<event> & events);
+	static void collect_target_recurse(const node_t & node, const fs::path & path, std::vector<fs::path> & result);
 public:
 	explicit fs_listener(const fs::path & path = fs::current_path());
 	descriptor & d() noexcept {
@@ -54,7 +55,9 @@ public:
 	}
 	bool track(const fs::path & path, watch_t::data_t * ud = nullptr);
 	bool forget(const fs::path & path);
+	std::vector<fs::path> targets() const;
 	std::vector<event> fetch();
+	~fs_listener();
 };
 
 } // namespace ekutils

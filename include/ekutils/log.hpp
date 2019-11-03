@@ -101,7 +101,9 @@ public:
 
 extern log_base * log;
 
-} // mcshub
+log_level str2loglvl(const std::string & verb);
+
+} // namespace ekutils
 
 #define log_something(lvl, subject) \
 		do { \

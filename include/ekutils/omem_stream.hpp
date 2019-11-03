@@ -20,6 +20,9 @@ public:
 	constexpr std::size_t size() const {
 		return buff.size();
 	}
+	constexpr void clear() {
+		buff.clear();
+	}
 };
 
 } // namespace ekutils

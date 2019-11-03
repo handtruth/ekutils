@@ -20,14 +20,19 @@ install_headers([
   'ekutils/out_stream.hpp',
   'ekutils/out_stream_d.hpp',
   'ekutils/parse_essentials.hpp',
+  'ekutils/pipe_d.hpp',
   'ekutils/primitives.hpp',
+  'ekutils/process.hpp',
   'ekutils/property.hpp',
   'ekutils/putil.hpp',
   'ekutils/reader.hpp',
   'ekutils/reallobuf.hpp',
   'ekutils/signal_d.hpp',
   'ekutils/socket_d.hpp',
+  'ekutils/stderr_d.hpp',
   'ekutils/stdin_d.hpp',
+  'ekutils/stdout_d.hpp',
   'ekutils/timer_d.hpp',
-  'ekutils/uuid.hpp'
+  'ekutils/uuid.hpp',
+  'ekutils/writer.hpp'
 ], subdir : 'ekutils')

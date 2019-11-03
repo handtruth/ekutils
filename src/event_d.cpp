@@ -6,7 +6,7 @@
 
 namespace ekutils {
 
-event_d::event_d(unsigned int initval) {
+event_d::event_d(unsigned initval) {
 	handle = eventfd(initval, 0);
 }
 

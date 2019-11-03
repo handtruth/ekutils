@@ -41,4 +41,26 @@ empty_log no_log;
 
 log_base * log = &no_log;
 
+log_level str2loglvl(const std::string & verb) {
+	if (verb == "none")
+		return log_level::none;
+	if (verb == "fatal")
+		return log_level::fatal;
+	if (verb == "error")
+		return log_level::error;
+	if (verb == "warning")
+		return log_level::warning;
+	if (verb == "info")
+		return log_level::info;
+	if (verb == "verbose")
+		return log_level::verbose;
+	if (verb == "debug")
+		return log_level::debug;
+	if (std::isdigit(verb[0])) {
+		int n = std::stoi(verb);
+		return log_level(n);
+	}
+	throw std::runtime_error("no such log level: " + verb);
+}
+
 } // namespace ekutils

@@ -48,11 +48,24 @@ protected:
 	descriptor(descriptor && other) {
 		handle = other.handle;
 		other.handle = -1;
-		record.reset(other.record.release());
+		record = std::move(other.record);
 		if (record) {
 			record->efd = this;
 		}
 	}
+	constexpr explicit descriptor(handle_t fd) : handle(fd) {}
+	descriptor & operator=(descriptor && other) {
+		close();
+		handle = other.handle;
+		other.handle = -1;
+		record = std::move(other.record);
+		if (record) {
+			record->efd = this;
+		}
+		return *this;
+	}
+public:
+	handle_t fd() const noexcept { return handle; }
 	friend class epoll_d;
 };
 

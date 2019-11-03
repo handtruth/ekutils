@@ -95,13 +95,15 @@ public:
 			flags(other.flags),
 			local_info(other.local_info),
 			remote_info(other.remote_info) {
-		handle = other.handle;
-		other.handle = -1;
+		descriptor::operator=(std::move(other));
 	}
 	tcp_socket_d() :
 			flags(tcp_flags::flags::nothing),
 			local_info(endpoint_info::empty), remote_info(endpoint_info::empty) {
 		handle = -1;
+	}
+	tcp_socket_d(const std::vector<connection_info> & infos, tcp_flags::flags f = tcp_flags::flags::nothing) : tcp_socket_d() {
+		open(infos, f);
 	}
 	void open(const std::vector<connection_info> & infos, tcp_flags::flags f = tcp_flags::flags::nothing);
 	std::errc ensure_connected();

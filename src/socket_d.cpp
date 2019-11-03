@@ -170,7 +170,10 @@ void tcp_listener_d::listen(const std::string & address, std::uint16_t port, tcp
 
 void tcp_listener_d::start(int backlog) {
 	if (::listen(handle, backlog) < 0)
-		throw std::runtime_error(std::string("failed to start tcp listener: ") + std::strerror(errno));
+		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to start tcp listener");
+	socklen_t len = local_info.addr_len();
+	if (getsockname(handle, &local_info.info.addr, &len) == -1)
+		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to gain info about tcp socket");
 }
 
 std::string tcp_listener_d::to_string() const noexcept {

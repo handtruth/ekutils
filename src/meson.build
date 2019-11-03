@@ -13,13 +13,18 @@ sources = files([
   'omem_stream.cpp',
   'out_stream_d.cpp',
   'parse_essentials.cpp',
+  'pipe_d.cpp',
+  'process.cpp',
   'reader.cpp',
   'reallobuf.cpp',
   'signal_d.cpp',
   'socket_d.cpp',
+  'stderr_d.cpp',
   'stdin_d.cpp',
+  'stdout_d.cpp',
   'timer_d.cpp',
-  'uuid.cpp'
+  'uuid.cpp',
+  'writer.cpp'
 ])
 
 src = include_directories('.')

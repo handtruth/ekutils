@@ -6,8 +6,7 @@
 namespace ekutils {
 
 void fs_listener::setup_inotify_bits(node_t & node, const fs::path & path) {
-	auto cpath = path/node.part;
-	if (!fs::exists(cpath)) {
+	if (!fs::exists(path)) {
 		node.watch = nullptr;
 		return;
 	}
@@ -18,38 +17,51 @@ void fs_listener::setup_inotify_bits(node_t & node, const fs::path & path) {
 	}
 	if (node.type & target) {
 		using namespace inev;
-		if (!fs::is_directory(cpath))
-			bits |= close_write;
+		if (!fs::is_directory(path))
+			bits |= close_write | create | moved_to;
 		bits |= delete_self | move_self;
 	}
 	if (node.watch)
 		node.watch = &inotify.mod_watch(bits, *node.watch);
 	else
-		node.watch = &inotify.add_watch(bits, cpath, &node);
+		node.watch = &inotify.add_watch(bits, path, &node);
 }
 
 void fs_listener::rm_watch_recurse(node_t & node, const fs::path & path, std::vector<event> & events) {
 	if (node.watch) {
-		fs::path cpath = path/node.part;
 		if (node.type & target)
-			events.emplace_back(cpath, event_t::removed, node.ud);
+			events.emplace_back(path, event_t::removed, node.ud);
 		inotify.remove_watch(*node.watch);
 		node.watch = nullptr;
 		for (auto & next : node.children)
-			rm_watch_recurse(*next, cpath, events);
+			rm_watch_recurse(*next, path/next->part, events);
 	}
 }
 
 void fs_listener::add_watch_recurse(node_t & node, const fs::path & path, std::vector<event> & events) {
 	assert(!node.watch);
-	fs::path cpath = path/node.part;
-	if (fs::exists(cpath)) {
-		if (node.type & target)
-			events.emplace_back(cpath, event_t::created, node.ud);
+	if (fs::exists(path)) {
+		if (node.type & target) {
+			if (fs::is_directory(path)) {
+				for (const auto & entry : fs::directory_iterator(path))
+					events.emplace_back(path/entry.path().filename(),
+						event_t::created_in, node.ud);
+			}
+			events.emplace_back(path, event_t::created, node.ud);
+		}
 		setup_inotify_bits(node, path);
 		for (auto & child : node.children)
-			add_watch_recurse(*child, cpath, events);
+			add_watch_recurse(*child, path/child->part, events);
 	}
+}
+
+void fs_listener::collect_target_recurse(const node_t & node, const fs::path & path, std::vector<fs::path> & result) {
+	fs::path cpath = path/node.part;
+	if (node.type & target) {
+		result.push_back(cpath);
+	}
+	for (const auto & next : node.children)
+		collect_target_recurse(*next, cpath, result);
 }
 
 fs_listener::fs_listener(const fs::path & path) :
@@ -61,8 +73,15 @@ bool fs_listener::track(const fs::path & path, watch_t::data_t * ud) {
 	fs::path relative = fs::relative(fs::absolute(path), croot);
 	if (*relative.begin() == "..")
 		throw std::runtime_error("only files in sub directories can be tracked to");
-	if (relative == ".")
-		throw std::runtime_error("there is no any sense to make root as target path");
+	if (relative == ".") {
+		root->ud = ud;
+		if (root->type & target) {
+			return false;
+		} else {
+			root->type |= target;
+			return true;
+		}
+	}
 	std::shared_ptr<node_t> cnode = root;
 	fs::path cpath = croot;
 	for (auto itpart = relative.begin(), endpart = --relative.end(); itpart != endpart; ++itpart) {
@@ -75,23 +94,24 @@ bool fs_listener::track(const fs::path & path, watch_t::data_t * ud) {
 		);
 		if (iter != cnode->children.end()) {
 			auto & next_node = *iter;
+			cpath /= next_node->part;
 			if (!(next_node->type & parent)) {
 				next_node->type |= parent;
 				setup_inotify_bits(*next_node, cpath);
 			}
 			cnode = next_node;
-			cpath /= next_node->part;
 		} else {
 			auto next_node_it = cchildren.emplace(std::make_shared<node_t>(part, parent, nullptr, cnode));
 			assert(next_node_it.second);
 			auto & next_node = *next_node_it.first;
+			cpath /= next_node->part;
 			setup_inotify_bits(*next_node, cpath);
 			cnode = next_node;
-			cpath /= next_node->part;
 		}
 	}
 	auto & cchildren = cnode->children;
 	const fs::path & name = relative.filename();
+	cpath /= name;
 	auto iter = std::find_if(cchildren.begin(), cchildren.end(),
 		[&name](const auto & it) -> bool {
 			return it->part == name;
@@ -99,11 +119,11 @@ bool fs_listener::track(const fs::path & path, watch_t::data_t * ud) {
 	);
 	if (iter != cchildren.end()) {
 		auto & next_node = *iter;
+		next_node->ud = ud;
 		if (next_node->type & target) {
 			return false;
 		} else {
 			next_node->type |= target;
-			next_node->ud = ud;
 			setup_inotify_bits(*next_node, cpath);
 			return true;
 		}
@@ -120,8 +140,15 @@ bool fs_listener::forget(const fs::path & path) {
 	fs::path relative = fs::relative(path, croot);
 	if (*relative.begin() == "..")
 		throw std::runtime_error("stop!");
-	if (relative == ".")
-		throw std::runtime_error("stop!!");
+	if (relative == ".") {
+		if (root->type & target) {
+			root->type &= ~target;
+			root->ud = nullptr;
+			return true;
+		} else {
+			return false;
+		}
+	}
 	std::shared_ptr<node_t> cnode = root;
 	for (const fs::path & part : path) {
 		auto & cchildren = cnode->children;
@@ -136,18 +163,27 @@ bool fs_listener::forget(const fs::path & path) {
 			return false;
 		}
 	}
-	while (true) {
-		if (cnode->watch) {
+	cnode->type &= ~target;
+	std::shared_ptr<node_t> parent;
+	while (!(cnode->type & target) && !cnode->children.size() && (parent = cnode->parent.lock())) {
+		assert(parent);
+		parent->children.erase(cnode);
+		if (cnode->watch)
 			inotify.remove_watch(*cnode->watch);
-		}
-		const fs::path & part = cnode->part;
-		auto parent = cnode->parent;
-		if (!parent)
-			return true;
-		if (cnode->children.empty())
-			parent->children.erase(cnode);
 		cnode = parent;
 	}
+	return true;
+}
+
+std::vector<fs::path> fs_listener::targets() const {
+	std::vector<fs::path> result;
+	fs::path path = ".";
+	if (root->type & target) {
+		result.push_back(path);
+	}
+	for (const auto & next : root->children)
+		collect_target_recurse(*next, path, result);
+	return result;
 }
 
 std::vector<fs_listener::event> fs_listener::fetch() {
@@ -163,6 +199,9 @@ std::vector<fs_listener::event> fs_listener::fetch() {
 			rm_watch_recurse(node, fs::relative(e.watch.path(), croot), result);
 		}
 		if (e.mask & (inev::create | inev::moved_to)) {
+			fs::path relative = fs::relative(e.watch.path(), croot);
+			if (node.type & target)
+				result.emplace_back(relative/e.subject, event_t::created_in, node.ud);
 			auto search = std::find_if(node.children.begin(), node.children.end(),
 				[&e](const auto & it) -> bool {
 					return it->part == e.subject;
@@ -170,11 +209,13 @@ std::vector<fs_listener::event> fs_listener::fetch() {
 			);
 			if (search != node.children.end()) {
 				auto & next = **search;
-				add_watch_recurse(next, fs::relative(e.watch.path(), croot), result);
+				add_watch_recurse(next, relative == "." ? fs::path(next.part) : relative/next.part, result);
 			}
 		}
 	}
 	return result;
 }
+
+fs_listener::~fs_listener() {}
 
 } // namespace ekutils

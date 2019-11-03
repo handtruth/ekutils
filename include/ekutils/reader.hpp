@@ -18,7 +18,7 @@ public:
 	explicit reader(in_stream & stream) : input(stream) {}
 	char read();
 	std::size_t read(std::string & string, std::size_t length);
-	bool read_line(std::string & line);
+	bool readln(std::string & line);
 };
 
 } // namespace ekutils
