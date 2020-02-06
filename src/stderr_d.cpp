@@ -18,6 +18,6 @@ std::string stderr_d::to_string() const noexcept {
 	return "stderr";
 }
 
-stderr_d unerr;
+stderr_d errors;
 
 } // namespace ekutils

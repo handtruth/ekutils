@@ -18,6 +18,6 @@ std::string stdout_d::to_string() const noexcept {
 	return "stdout";
 }
 
-stdout_d unout;
+stdout_d output;
 
 } // namespace ekutils

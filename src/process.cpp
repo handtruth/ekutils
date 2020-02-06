@@ -27,15 +27,15 @@ void process::process_spawn(delegate_base<int(void)> & entrypoint, const process
 		if (p_id)
 			return;
 		if (opts.streams & stream::in) {
-			ekutils::unin = std_in_pair;
+			ekutils::input = std_in_pair;
 			std_in.close();
 		}
 		if (opts.streams & stream::out) {
-			ekutils::unout = std_out_pair;
+			ekutils::output = std_out_pair;
 			std_out.close();
 		}
 		if (opts.streams & stream::err) {
-			ekutils::unerr = std_err_pair;
+			ekutils::errors = std_err_pair;
 			std_err.close();
 		}
 	}
