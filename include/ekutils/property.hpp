@@ -39,6 +39,7 @@ public:
 	property_t & operator=(const T & other) {
 		notify(value, other);
 		value = other;
+		return *this;
 	}
 	property_t & operator=(T && other) {
 		notify(value, other);
