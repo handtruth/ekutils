@@ -14,17 +14,22 @@ public:
 	matomic() {}
 	matomic(const T & data) : object(data) {}
 	matomic(T && data) : object(static_cast<T &&>(data)) {}
-	void operator=(const T & data) {
+	matomic & operator=(const T & data) {
 		std::unique_lock lock(mutex);
 		object = data;
+		return *this;
 	}
-	void operator=(const T && data) {
+	matomic & operator=(T && data) {
 		std::unique_lock lock(mutex);
 		object = std::move(data);
+		return *this;
 	}
-	operator T() const {
+	T get() const {
 		std::shared_lock lock(mutex);
 		return object;
+	}
+	operator T() const {
+		return get();
 	}
 };
 

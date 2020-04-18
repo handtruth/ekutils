@@ -2,7 +2,7 @@
 #define LAZY_HEAD_FEDWDBYK
 
 #include <functional>
-#include <new>
+#include <optional>
 #include <atomic>
 #include <mutex>
 
@@ -12,53 +12,35 @@ namespace ekutils {
 
 template <typename T>
 class lazy {
-    const std::function<T(void)> factory;
-    mutable byte_t data[sizeof(T)];
-    mutable volatile bool initialized = false;
-    mutable std::mutex mutex;
-
-    constexpr T & get_data() {
-        return *reinterpret_cast<T *>(data);
-    }
-
-    constexpr const T & get_data() const {
-        return *reinterpret_cast<const T *>(data);
-    }
+	const std::function<T(void)> factory;
+	mutable std::optional<T> value;
+	mutable std::mutex mutex;
 
 public:
-    explicit lazy(const std::function<T(void)> & init) : factory(init) {}
-    lazy() : factory([]() -> T { return T(); }) {}
+	explicit lazy(const std::function<T(void)> & init) : factory(init) {}
+	lazy() : factory([]() -> T { return T(); }) {}
 
-    T & get() {
-        if (initialized)
-            return get_data();
-        std::lock_guard lock(mutex);
-        if (initialized)
-            return get_data();
-        new(data) T(factory());
-        initialized = true;
-        return get_data();
-    }
+	T & get() {
+		if (value.has_value())
+			return *value;
+		std::lock_guard lock(mutex);
+		if (value.has_value())
+			return *value;
+		return *(value = factory());
+	}
 
-    operator T &() { return get(); }
+	operator T &() { return get(); }
 
-    const T & get() const {
-        if (initialized)
-            return get_data();
-        std::lock_guard lock(mutex);
-        if (initialized)
-            return get_data();
-        new(data) T(factory());
-        initialized = true;
-        return get_data();
-    }
+	const T & get() const {
+		if (value.has_value())
+			return *value;
+		std::lock_guard lock(mutex);
+		if (value.has_value())
+			return *value;
+		return *(value = factory());
+	}
 
-    operator const T &() const { return get(); }
-
-    ~lazy() {
-        if (initialized)
-            get_data().~T();
-    }
+	operator const T &() const { return get(); }
 };
 
 } // namespace ekutils

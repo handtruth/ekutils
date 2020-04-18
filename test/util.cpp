@@ -1,6 +1,7 @@
 #include "ekutils/mutex_atomic.hpp"
 #include "ekutils/putil.hpp"
 #include "ekutils/lazy.hpp"
+#include "ekutils/lateinit.hpp"
 
 #include <memory>
 #include <thread>
@@ -67,4 +68,18 @@ test {
 	assert_equals("test string", future3.get());
 	assert_equals("test string", future4.get());
 	assert_equals("test string", future5.get());
+
+	{
+		lateinit<std::string> late;
+		assert_false(late.initialized());
+		assert_fails_with(std::bad_optional_access, {
+			std::string my_val = late;
+		});
+		late = "initialized";
+		assert_true(late.initialized());
+		assert_fails_with(std::runtime_error, {
+			late = "popka";
+		});
+		assert_equals("initialized", late.get());
+	}
 }
