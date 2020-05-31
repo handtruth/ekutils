@@ -6,7 +6,7 @@
 
 namespace ekutils {
 
-class out_stream_d : public out_stream, virtual public descriptor {
+class out_stream_d : virtual public out_stream, virtual public descriptor {
 public:
 	out_stream_d() = default;
 	virtual int write(const byte_t data[], std::size_t length) override;

@@ -72,6 +72,12 @@ public:
 		timers.emplace(static_cast<int>(duration_cast<milliseconds>(span).count()), action, id);
 		return id;
 	}
+	template <typename F>
+	int later(F action) {
+		int id = id_gen.next();
+		timers.emplace(0, action, id);
+		return id;
+	}
 	bool refuse(int task);
 	template <typename F>
 	void add(descriptor & fd, std::uint32_t events, F action) {

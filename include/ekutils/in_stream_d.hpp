@@ -6,7 +6,7 @@
 
 namespace ekutils {
 
-class in_stream_d : public in_stream, virtual public descriptor {
+class in_stream_d : virtual public in_stream, virtual public descriptor {
 public:
 	in_stream_d() = default;
 	virtual int read(byte_t data[], std::size_t length) override;

@@ -1,5 +1,6 @@
 sources = files([
   'cli.cpp',
+  'connection_info.cpp',
   'descriptor.cpp',
   'epoll_d.cpp',
   'event_d.cpp',
@@ -11,6 +12,7 @@ sources = files([
   'inotify_d.cpp',
   'log.cpp',
   'omem_stream.cpp',
+  'open_listener.cpp',
   'out_stream_d.cpp',
   'parse_essentials.cpp',
   'pipe_d.cpp',
@@ -18,11 +20,14 @@ sources = files([
   'reader.cpp',
   'reallobuf.cpp',
   'signal_d.cpp',
-  'socket_d.cpp',
   'stderr_d.cpp',
   'stdin_d.cpp',
   'stdout_d.cpp',
+  'stream_socket_d.cpp',
+  'tcp_d.cpp',
   'timer_d.cpp',
+  'udp_d.cpp',
+  'unix_d.cpp',
   'uuid.cpp',
   'writer.cpp'
 ])
