@@ -5,6 +5,7 @@ install_headers([
   'ekutils/connection_info.hpp',
   'ekutils/delegate.hpp',
   'ekutils/descriptor.hpp',
+  'ekutils/dynamic.hpp',
   'ekutils/epoll_d.hpp',
   'ekutils/event_d.hpp',
   'ekutils/expandbuff.hpp',

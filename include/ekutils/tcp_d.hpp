@@ -31,6 +31,10 @@ public:
 		sock_flags::flags f = sock_flags::nothing);
 	void listen(const std::string & address, const std::string & port,
 		sock_flags::flags f = sock_flags::nothing);
+	void listen(const std::string & address, std::uint16_t port,
+		sock_flags::flags f = sock_flags::nothing) {
+		listen(address, std::to_string(port), f);
+	}
 	void start(int backlog = 25);
 	virtual std::string to_string() const noexcept override;
 	const endpoint_info & local_endpoint() const noexcept {

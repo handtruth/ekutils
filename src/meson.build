@@ -2,6 +2,7 @@ sources = files([
   'cli.cpp',
   'connection_info.cpp',
   'descriptor.cpp',
+  'dynamic.cpp',
   'epoll_d.cpp',
   'event_d.cpp',
   'expandbuff.cpp',

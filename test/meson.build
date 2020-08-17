@@ -1,5 +1,6 @@
 test_names = [
   'cli',
+  'dynamic',
   'fs_watcher',
   'inotify',
   'logs',
