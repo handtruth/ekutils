@@ -51,14 +51,6 @@ void tcp_listener_d::listen(const std::string & address, const std::string & por
 	handle = open_listener(address, port, local_info, SOCK_STREAM, f);
 }
 
-void tcp_listener_d::start(int backlog) {
-	if (::listen(handle, backlog) < 0)
-		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to start tcp listener");
-	socklen_t len = local_info.addr_len();
-	if (getsockname(handle, &local_info.info.addr, &len) == -1)
-		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to gain info about tcp socket");
-}
-
 std::string tcp_listener_d::to_string() const noexcept {
 	return "tcp listener (" + std::string(local_info) + ')';
 }
@@ -74,13 +66,6 @@ tcp_socket_d tcp_listener_d::accept() {
 	endpoint_info socket_endpoint;
 	sockaddr2endpoint(sockaddr_info, socket_endpoint);
 	return tcp_socket_d(client, local_info, socket_endpoint, flags);
-}
-
-void tcp_listener_d::set_reusable(bool reuse) {
-	int opt = reuse ? 1 : 0;
-	if (setsockopt(handle, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
-		throw std::system_error(std::make_error_code(std::errc(errno)), "can't set SO_REUSEPORT option for tcp listener");
-	}
 }
 
 } // namespace ektils

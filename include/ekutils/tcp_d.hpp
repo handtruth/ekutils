@@ -1,7 +1,7 @@
 #ifndef TCP_D_HEAD_NFH14JGKBXGFC
 #define TCP_D_HEAD_NFH14JGKBXGFC
 
-#include <ekutils/stream_socket_d.hpp>
+#include <ekutils/listener_socket_d.hpp>
 
 namespace ekutils {
 
@@ -21,7 +21,7 @@ public:
 	friend class tcp_listener_d;
 };
 
-class tcp_listener_d : public descriptor {
+class tcp_listener_d : public listener_socket_d {
 private:
 	sock_flags::flags flags;
 	endpoint_info local_info;
@@ -35,13 +35,14 @@ public:
 		sock_flags::flags f = sock_flags::nothing) {
 		listen(address, std::to_string(port), f);
 	}
-	void start(int backlog = 25);
 	virtual std::string to_string() const noexcept override;
 	const endpoint_info & local_endpoint() const noexcept {
 		return local_info;
 	}
 	tcp_socket_d accept();
-	void set_reusable(bool reuse = true);
+	virtual std::unique_ptr<stream_socket_d> accept_virtual() override {
+		return std::make_unique<tcp_socket_d>(accept());
+	}
 };
 
 } // namespace ekutils

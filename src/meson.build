@@ -11,6 +11,7 @@ sources = files([
   'imem_stream.cpp',
   'in_stream_d.cpp',
   'inotify_d.cpp',
+  'listener_socket_d.cpp',
   'log.cpp',
   'omem_stream.cpp',
   'open_listener.cpp',

@@ -65,11 +65,6 @@ void unix_stream_listener_d::listen(const std::filesystem::path & path, sock_fla
 		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to bind unix socket: \"" + path.string() + '"');
 }
 
-void unix_stream_listener_d::start(int backlog) {
-	if (::listen(handle, backlog) < 0)
-		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to start unix listener socket");
-}
-
 std::string unix_stream_listener_d::to_string() const noexcept {
 	return "unix listener (" + std::string(local_info) + ')';
 }
@@ -87,12 +82,5 @@ unix_stream_socket_d unix_stream_listener_d::accept() {
 	return unix_stream_socket_d(client, local_info, socket_endpoint, flags);
 }
 
-void unix_stream_listener_d::set_reusable(bool reuse) {
-	int opt = reuse ? 1 : 0;
-	if (setsockopt(handle, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
-		throw std::system_error(std::make_error_code(std::errc(errno)), "can't set SO_REUSEPORT option for unix listener");
-	}
-}
-
-} // namespace ektils
+} // namespace ekutils
 

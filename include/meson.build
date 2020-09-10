@@ -20,6 +20,7 @@ install_headers([
   'ekutils/io_stream_d.hpp',
   'ekutils/lateinit.hpp',
   'ekutils/lazy.hpp',
+  'ekutils/listener_socket_d.hpp',
   'ekutils/log.hpp',
   'ekutils/mutex_atomic.hpp',
   'ekutils/omem_stream.hpp',

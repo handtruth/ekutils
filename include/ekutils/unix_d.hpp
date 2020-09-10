@@ -3,7 +3,7 @@
 
 #include <filesystem>
 
-#include <ekutils/stream_socket_d.hpp>
+#include <ekutils/listener_socket_d.hpp>
 
 namespace ekutils {
 
@@ -23,7 +23,7 @@ public:
 	friend class unix_stream_listener_d;
 };
 
-class unix_stream_listener_d : public descriptor {
+class unix_stream_listener_d : public listener_socket_d {
 private:
 	sock_flags::flags flags;
 	endpoint_info local_info;
@@ -32,13 +32,14 @@ public:
 	unix_stream_listener_d(const std::filesystem::path & path,
 		sock_flags::flags f = sock_flags::nothing);
 	void listen(const std::filesystem::path & path, sock_flags::flags f = sock_flags::nothing);
-	void start(int backlog = 25);
 	virtual std::string to_string() const noexcept override;
 	const endpoint_info & local_endpoint() const noexcept {
 		return local_info;
 	}
 	unix_stream_socket_d accept();
-	void set_reusable(bool reuse = true);
+	virtual std::unique_ptr<stream_socket_d> accept_virtual() override {
+		return std::make_unique<unix_stream_socket_d>(accept());
+	}
 };
 
 } // namespace ekutils
