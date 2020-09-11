@@ -37,7 +37,6 @@ void descriptor::close() {
 		::close(handle);
 		handle = -1;
 	}
-	record.reset();
 }
 
 descriptor::record_base::~record_base() {}
