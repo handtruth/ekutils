@@ -9,6 +9,11 @@ namespace ekutils {
 
 endpoint_info endpoint_info::empty = endpoint_info();
 
+void endpoint_info::setup(family_t type) {
+	std::memset(&info.addr, 0, len_of(type));
+	info.addr.sa_family = sa_family_t(type);
+}
+
 std::string endpoint_info::address() const {
 	switch (info.addr.sa_family) {
 	case AF_INET: {

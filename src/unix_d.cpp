@@ -25,6 +25,7 @@ unix_stream_socket_d::unix_stream_socket_d(int fd, const endpoint_info & local, 
 
 void unix_stream_socket_d::open(const std::filesystem::path & path, sock_flags::flags f) {
 	close();
+	local_info.setup(endpoint_info::family_t::unknown);
 	flags = f;
 	handle = socket(AF_UNIX, SOCK_STREAM | ((f & sock_flags::non_blocking) ? SOCK_NONBLOCK : 0), 0);
 	if (handle == -1) {
@@ -56,6 +57,7 @@ unix_stream_listener_d::unix_stream_listener_d(const std::filesystem::path & pat
 void unix_stream_listener_d::listen(const std::filesystem::path & path, sock_flags::flags f) {
 	close();
 	flags = f;
+	local_info.setup(endpoint_info::family_t::unknown);
 	handle = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (handle == -1)
 		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to create unix listener socket");

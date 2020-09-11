@@ -48,6 +48,7 @@ tcp_listener_d::tcp_listener_d(const std::string & address, const std::string & 
 void tcp_listener_d::listen(const std::string & address, const std::string & port, sock_flags::flags f) {
 	close();
 	flags = f;
+	local_info.setup(endpoint_info::family_t::unknown);
 	handle = open_listener(address, port, local_info, SOCK_STREAM, f);
 }
 

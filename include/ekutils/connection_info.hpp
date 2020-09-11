@@ -17,10 +17,13 @@ struct endpoint_info {
 	static endpoint_info empty;
 
 	enum class family_t {
+		unknown = AF_UNSPEC,
 		ipv4 = AF_INET,
 		ipv6 = AF_INET6,
 		un = AF_UNIX,
 	};
+
+	void setup(family_t type);
 
 	union {
 		sockaddr addr;
@@ -29,13 +32,18 @@ struct endpoint_info {
 		sockaddr_un addr_un;
 	} info;
 
-	socklen_t addr_len() const {
-		switch (addr_family()) {
+	static constexpr socklen_t len_of(family_t family) {
+		switch (family) {
+			case family_t::unknown: return std::max(sizeof(sockaddr_in), std::max(sizeof(sockaddr_in6), sizeof(sockaddr_un)));
 			case family_t::ipv4: return sizeof(sockaddr_in);
 			case family_t::ipv6: return sizeof(sockaddr_in6);
 			case family_t::un: return sizeof(sockaddr_un);
 			default: return -1;
 		}
+	}
+
+	socklen_t addr_len() const {
+		return len_of(addr_family());
 	}
 
 	family_t addr_family() const {
