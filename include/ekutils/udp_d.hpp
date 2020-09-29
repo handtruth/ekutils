@@ -9,7 +9,7 @@ namespace ekutils {
 
 class udp_server_d : public descriptor {
 private:
-	sock_flags::flags flags;
+	//sock_flags::flags flags;
 	endpoint_info local_info;
 public:
 	udp_server_d(const std::string & address, const std::string & port, sock_flags::flags f = sock_flags::nothing);
