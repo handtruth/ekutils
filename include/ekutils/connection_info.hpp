@@ -32,6 +32,10 @@ struct endpoint_info {
 		sockaddr_un addr_un;
 	} info;
 
+	endpoint_info() {
+		info.addr.sa_family = AF_UNSPEC;
+	}
+
 	static constexpr socklen_t len_of(family_t family) {
 		switch (family) {
 			case family_t::unknown: return std::max(sizeof(sockaddr_in), std::max(sizeof(sockaddr_in6), sizeof(sockaddr_un)));
