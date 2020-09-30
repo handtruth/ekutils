@@ -1,5 +1,6 @@
 #include "ekutils/stream_socket_d.hpp"
 
+#include <sys/time.h>
 #include <unistd.h>
 
 namespace ekutils {
