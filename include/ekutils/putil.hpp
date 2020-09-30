@@ -16,7 +16,7 @@ public:
 };
 
 #define __ekutils_finnaly_internal(line, block) \
-		finalizator __fblock##line([&]() -> void block )
+		::ekutils::finalizator __fblock##line([&]() -> void block )
 #define finnaly(block) \
 		__ekutils_finnaly_internal(__LINE__, block)
 

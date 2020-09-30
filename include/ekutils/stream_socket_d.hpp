@@ -2,6 +2,7 @@
 #define STREAM_SOCKET_D_HEAD_QQPCPDKB37
 
 #include <system_error>
+#include <chrono>
 
 #include <ekutils/connection_info.hpp>
 #include <ekutils/io_stream_d.hpp>
@@ -40,7 +41,16 @@ public:
 	std::errc last_error();
 	virtual int read(byte_t bytes[], size_t length) override;
 	virtual int write(const byte_t bytes[], size_t length) override;
+	void set_timeout(std::uint64_t seconds, std::uint64_t micros);
 
+	template <typename Rep, typename Period>
+	void set_timeout(std::chrono::duration<Rep, Period> span) {
+		using namespace std::chrono;
+		seconds span_sec = duration_cast<seconds>(span);
+		auto secs = static_cast<unsigned long>(span_sec.count());
+		auto micros = static_cast<unsigned long>(duration_cast<microseconds>(span_sec - floor<seconds>(span_sec)).count());
+		set_timeout(secs, micros);
+	}
 };
 
 } // namespace ekutils

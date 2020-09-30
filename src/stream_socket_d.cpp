@@ -41,4 +41,20 @@ int stream_socket_d::write(const byte_t bytes[], size_t length) {
 	return r;
 }
 
+void stream_socket_d::set_timeout(std::uint64_t seconds, std::uint64_t micros) {
+	timeval timeout;      
+    timeout.tv_sec = seconds;
+    timeout.tv_usec = micros;
+
+    if (setsockopt(handle, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) == -1) {
+		throw std::system_error(std::make_error_code(std::errc(errno)),
+			"failed to set socket receive timeout \"" + std::string(remote_info) + "\"");
+	}
+
+    if (setsockopt (handle, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) == -1) {
+		throw std::system_error(std::make_error_code(std::errc(errno)),
+			"failed to set socket send timeout \"" + std::string(remote_info) + "\"");
+	}
+}
+
 } // namespace ekutils
