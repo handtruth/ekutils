@@ -24,6 +24,10 @@ public:
 	T & emplace(Args &&... args) {
 		return data.emplace_front(std::forward<Args>(args)...);
 	}
+
+	void clear() {
+		data.clear();
+	}
 };
 
 } // namespace ekutils
