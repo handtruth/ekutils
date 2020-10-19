@@ -36,11 +36,12 @@ std::string endpoint_info::address() const {
 	}
 }
 
-std::vector<connection_info> connection_info::resolve(const std::string & address, const std::string & port) {
+std::vector<connection_info> connection_info::resolve(const std::string & address, const std::string & port, int stype, int sproto) {
 	addrinfo initial, *sysaddr = nullptr, *a = nullptr;
 	std::memset(&initial, 0, sizeof(addrinfo));
 	initial.ai_family = AF_UNSPEC;
-	initial.ai_socktype = SOCK_STREAM;
+	initial.ai_socktype = stype;
+	initial.ai_protocol = sproto;
 	
 	finnaly({
 		if (sysaddr != nullptr)

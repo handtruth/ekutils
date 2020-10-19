@@ -86,7 +86,10 @@ struct connection_info {
 	endpoint_info endpoint;
 	int sock_type;
 	int protocol;
-	static std::vector<connection_info> resolve(const std::string & address, const std::string & port);
+	static std::vector<connection_info> resolve(
+		const std::string & address, const std::string & port,
+		int stype = SOCK_STREAM, int sproto = IPPROTO_TCP
+	);
 	static std::vector<connection_info> resolve(const std::string & address, std::uint16_t port) {
 		return resolve(address, std::to_string(port));
 	}
