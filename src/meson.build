@@ -1,4 +1,5 @@
 sources = files([
+  'arguments.cpp',
   'cli.cpp',
   'connection_info.cpp',
   'descriptor.cpp',

@@ -1,4 +1,5 @@
 test_names = [
+  'arguments_test',
   'cli',
   'dynamic',
   'fs_watcher',
