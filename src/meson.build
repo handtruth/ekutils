@@ -31,6 +31,7 @@ sources = files([
   'timer_d.cpp',
   'udp_d.cpp',
   'unix_d.cpp',
+  'uri.cpp',
   'uuid.cpp',
   'writer.cpp'
 ])

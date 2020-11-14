@@ -95,7 +95,7 @@ void arguments::fractional::parse_value(const std::string_view & str) {
 	throw arguments_parse_error("positional arguments not expected");
 }
 
-void arguments::parse(int argc, char * argv[]) {
+void arguments::parse(int argc, const char * argv[]) {
 	// prepare options
 	std::unordered_map<std::string_view, std::reference_wrapper<argument>> options;
 	std::unordered_map<char, std::reference_wrapper<flag>> flags;
@@ -110,8 +110,8 @@ void arguments::parse(int argc, char * argv[]) {
 		}
 	}
 
-	char **iter = argv + 1;
-	char **end = argv + argc;
+	const char **iter = argv + 1;
+	const char **end = argv + argc;
 	for (; iter != end; ++iter) {
 		const char * word = *iter;
 		if (!std::strncmp(word, "--", 2)) {

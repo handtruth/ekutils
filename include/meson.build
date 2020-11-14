@@ -1,6 +1,7 @@
 includes = include_directories('.')
 
 install_headers([
+  'ekutils/arguments.hpp',
   'ekutils/cli.hpp',
   'ekutils/connection_info.hpp',
   'ekutils/delegate.hpp',
@@ -44,6 +45,7 @@ install_headers([
   'ekutils/timer_d.hpp',
   'ekutils/udp_d.hpp',
   'ekutils/unix_d.hpp',
+  'ekutils/uri.hpp',
   'ekutils/uuid.hpp',
   'ekutils/writer.hpp'
 ], subdir : 'ekutils')

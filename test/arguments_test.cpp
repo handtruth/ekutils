@@ -59,7 +59,7 @@ struct testargs : public ekutils::arguments {
 
 test {
 	testargs args;
-	char * tc[] {
+	const char * tc[] {
 		"./program", "--test-str=a value", "-f", "--desc-int", "3568", "--multi=hello",
 		"--multi", "world", "positional", "--vards=two", "--", "--not_flag"
 	};

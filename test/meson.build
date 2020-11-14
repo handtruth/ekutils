@@ -10,6 +10,7 @@ test_names = [
   'reader',
   'reallobuffer',
   'sh_process',
+  'uri_test',
   'util',
   'writer_test'
 ]

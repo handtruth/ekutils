@@ -150,7 +150,10 @@ struct arguments {
 		}
 	};
 
-	void parse(int argc, char * argv[]);
+	void parse(int argc, const char * argv[]);
+	void parse(int argc, char * argv[]) {
+		parse(argc, const_cast<const char **>(argv));
+	}
 	std::string build_help(const std::string_view & program) const;
 
 	std::vector<std::string> positional;
