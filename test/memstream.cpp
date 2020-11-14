@@ -19,6 +19,6 @@ test {
         output.write_array(buffer, r);
     }
     assert_equals(smth_to_read.size(), output.size());
-    std::memcmp(reinterpret_cast<const char *>(smth_to_read.data()),
-        reinterpret_cast<const char *>(output.data()), output.size());
+    assert_equals(0, std::memcmp(reinterpret_cast<const char *>(smth_to_read.data()),
+        reinterpret_cast<const char *>(output.data()), output.size()));
 }

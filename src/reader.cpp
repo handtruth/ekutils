@@ -22,7 +22,7 @@ void reader::fetch() {
 	} while (s == part);
 }
 
-char reader::getc() {
+int reader::getc() {
 	if (buff.size()) {
 		char c = *buff.data();
 		buff.move(1);
@@ -36,7 +36,7 @@ void reader::gets(std::string & string, std::size_t length) {
 	buff.move(length);
 }
 
-char reader::read() {
+int reader::read() {
 	char r = getc();
 	if (r != -1)
 		return r;

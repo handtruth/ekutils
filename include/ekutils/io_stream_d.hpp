@@ -7,7 +7,7 @@
 
 namespace ekutils {
 
-class io_stream_d : virtual io_stream, virtual public in_stream_d, virtual public out_stream_d {};
+class io_stream_d : virtual public io_stream, virtual public in_stream_d, virtual public out_stream_d {};
 
 } // namespace ekutils
 

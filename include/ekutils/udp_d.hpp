@@ -7,19 +7,21 @@
 
 namespace ekutils {
 
-class udp_server_d : public descriptor {
+class udp_socket_d : public descriptor {
 private:
-	sock_flags::flags flags;
+	//sock_flags::flags flags;
 	endpoint_info local_info;
 public:
-	udp_server_d(const std::string & address, const std::string & port, sock_flags::flags f = sock_flags::nothing);
+	udp_socket_d(int type, sock_flags::flags f = sock_flags::nothing);
+	udp_socket_d(sock_flags::flags f = sock_flags::nothing);
+	udp_socket_d(const std::string & address, const std::string & port, sock_flags::flags f = sock_flags::nothing);
 	virtual std::string to_string() const noexcept override;
 	int read(byte_t bytes[], size_t length, endpoint_info * remote_endpoint);
 	int write(const byte_t bytes[], size_t length, const endpoint_info & remote_endpoint);
 	const endpoint_info & local_endpoint() const noexcept {
 		return local_info;
 	}
-	virtual ~udp_server_d() override;
+	virtual ~udp_socket_d() override;
 };
 
 } // namespace ekutils
