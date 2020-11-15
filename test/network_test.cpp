@@ -14,6 +14,4 @@ test {
 
 	auto server = net::bind_stream(targets.front());
 	server->listen();
-
-	std::cin.get();
 }
