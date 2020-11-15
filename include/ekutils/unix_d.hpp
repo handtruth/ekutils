@@ -1,47 +1,108 @@
 #ifndef UNIX_D_HEAD_YDBQTU6FTRS
 #define UNIX_D_HEAD_YDBQTU6FTRS
 
-#include <filesystem>
+#include <optional>
 
-#include <ekutils/listener_socket_d.hpp>
+#include <ekutils/socket_d.hpp>
 
-namespace ekutils {
+namespace ekutils::net {
 
 class unix_stream_listener_d;
 class unix_stream_socket_d;
 
-class unix_stream_socket_d : public stream_socket_d {
-	unix_stream_socket_d(int fd, const endpoint_info & local, const endpoint_info & remote, sock_flags::flags f);
-public:
-	unix_stream_socket_d(unix_stream_socket_d && other) : stream_socket_d(std::move(other)) {};
-	unix_stream_socket_d() {}
-	unix_stream_socket_d(const std::filesystem::path & path, sock_flags::flags f = sock_flags::flags::nothing) : unix_stream_socket_d() {
-		open(path, f);
+struct unix_socket_d : public virtual socket_d {
+	virtual family_t family() const noexcept final {
+		return family_t::un;
 	}
-	void open(const std::filesystem::path & path, sock_flags::flags f = sock_flags::flags::nothing);
-	virtual std::string to_string() const noexcept override;
-	friend class unix_stream_listener_d;
+	unix_socket_d() = default;
+	unix_socket_d(const unix_socket_d & other) = delete;
+	unix_socket_d & operator=(const unix_socket_d & other) = delete;
 };
 
-class unix_stream_listener_d : public listener_socket_d {
+struct datagram_unix_socket_d : public unix_socket_d, public virtual datagram_socket_d {
+protected:
+	void open(std::int32_t flags = socket_flags::nothing);
+};
+
+struct client_datagram_unix_socket_t final : public datagram_unix_socket_d {
+	client_datagram_unix_socket_t() = default;
+	client_datagram_unix_socket_t(client_datagram_unix_socket_t && other) :
+		descriptor(std::move(other)) {}
+	client_datagram_unix_socket_t & operator=(client_datagram_unix_socket_t && other) {
+		descriptor::operator=(std::move(other));
+		return *this;
+	}
+	using datagram_unix_socket_d::open;
+	virtual std::string to_string() const noexcept override;
+};
+
+class server_datagram_unix_socket_d final : public datagram_unix_socket_d, public datagram_server_socket_d {
+	un::endpoint info;
+
+public:
+	server_datagram_unix_socket_d() = default;
+	server_datagram_unix_socket_d(server_datagram_unix_socket_d && other) :
+		descriptor(std::move(other)), info(other.info) {}
+	server_datagram_unix_socket_d & operator=(server_datagram_unix_socket_d && other) {
+		descriptor::operator=(std::move(other));
+		info = other.info;
+		return *this;
+	}
+	void bind(const un::endpoint & address, std::int32_t flags = socket_flags::nothing);
+	virtual const endpoint & local_endpoint() const override;
+	virtual std::string to_string() const noexcept override;
+};
+
+struct stream_unix_socket_d : public unix_socket_d, public virtual bound_socket_d {
+protected:
+	un::endpoint info;
+	void open(std::int32_t flags = socket_flags::nothing);
+	stream_unix_socket_d() = default;
+	stream_unix_socket_d(stream_unix_socket_d && other) :
+		descriptor(std::move(other)), info(other.info) {}
+	stream_unix_socket_d & operator=(stream_unix_socket_d && other) {
+		descriptor::operator=(std::move(other));
+		info = other.info;
+		return *this;
+	}
+	virtual const endpoint & local_endpoint() const override;
+};
+
+struct client_stream_unix_socket_d final : public stream_unix_socket_d, public stream_socket_d {
+	client_stream_unix_socket_d() {}
+	client_stream_unix_socket_d(client_stream_unix_socket_d && other) :
+		descriptor(std::move(other)), stream_unix_socket_d(std::move(other)) {}
+	client_stream_unix_socket_d & operator=(client_stream_unix_socket_d && other) {
+		stream_unix_socket_d::operator=(std::move(other));
+		return *this;
+	}
+	void connect(const un::endpoint & address, std::uint32_t f = socket_flags::nothing);
+	virtual const endpoint & local_endpoint() const override;
+	virtual const endpoint & remote_endpoint() const override;
+	virtual std::string to_string() const noexcept override;
+
 private:
-	sock_flags::flags flags;
-	endpoint_info local_info;
-public:
-	explicit unix_stream_listener_d(sock_flags::flags f = sock_flags::nothing);
-	unix_stream_listener_d(const std::filesystem::path & path,
-		sock_flags::flags f = sock_flags::nothing);
-	void listen(const std::filesystem::path & path, sock_flags::flags f = sock_flags::nothing);
-	virtual std::string to_string() const noexcept override;
-	const endpoint_info & local_endpoint() const noexcept {
-		return local_info;
-	}
-	unix_stream_socket_d accept();
-	virtual std::unique_ptr<stream_socket_d> accept_virtual() override {
-		return std::make_unique<unix_stream_socket_d>(accept());
-	}
+	client_stream_unix_socket_d(handle_t fd) : descriptor(fd) {}
+	friend class server_stream_unix_socket_d;
 };
 
-} // namespace ekutils
+struct server_stream_unix_socket_d final : public stream_unix_socket_d, public stream_server_socket_d {
+	server_stream_unix_socket_d() {}
+	server_stream_unix_socket_d(server_stream_unix_socket_d && other) :
+		descriptor(std::move(other)), stream_unix_socket_d(std::move(other)) {}
+	server_stream_unix_socket_d & operator=(server_stream_unix_socket_d && other) {
+		stream_unix_socket_d::operator=(std::move(other));
+		return *this;
+	}
+	void bind(const un::endpoint & address, std::int32_t flags = socket_flags::nothing);
+	virtual const endpoint & local_endpoint() const override;
+	client_stream_unix_socket_d accept();
+	virtual std::unique_ptr<stream_socket_d> accept_virtual() override {
+		return std::make_unique<client_stream_unix_socket_d>(accept());
+	}
+	virtual std::string to_string() const noexcept override;
+};
+
+} // namespace ekutils::net
 
 #endif // UNIX_D_HEAD_YDBQTU6FTRS

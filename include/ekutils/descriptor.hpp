@@ -43,6 +43,7 @@ private:
 	};
 	std::unique_ptr<record_base> record;
 protected:
+	void check_created() const;
 	descriptor() : handle(-1) {}
 	handle_t handle;
 	descriptor(descriptor && other) {

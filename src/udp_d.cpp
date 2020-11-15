@@ -1,53 +1,57 @@
-#include "ekutils/socket_d.hpp"
+#include "ekutils/udp_d.hpp"
 
 #include <cstring>
 #include <stdexcept>
+#include <cerrno>
 
-#include "ekutils/putil.hpp"
-#include "open_listener.hpp"
+#include "sys_error.hpp"
+#include "net_utils.hpp"
 
-namespace ekutils {
+namespace ekutils::net {
 
-udp_socket_d::udp_socket_d(int type, sock_flags::flags) {
+void udp_socket_d::open(family_t family, std::int32_t flags) {
 	close();
-	handle = socket(type, SOCK_DGRAM, IPPROTO_UDP);
+	m_family = family;
+	handle = socket(int(family), SOCK_DGRAM | ((flags & socket_flags::non_block) ? SOCK_NONBLOCK : 0), IPPROTO_UDP);
 	if (handle == -1)
-		throw std::system_error(std::make_error_code(std::errc(errno)),
-			"failed to create udp socket");
+		sys_error("failed to create udp socket");
 }
 
-udp_socket_d::udp_socket_d(sock_flags::flags f) : udp_socket_d(AF_INET, f) {}
-
-udp_socket_d::udp_socket_d(const std::string & address, const std::string & port, sock_flags::flags f) {
-	handle = open_listener(address, port, local_info, SOCK_DGRAM, f);
+std::string client_udp_socket_d::to_string() const noexcept {
+	return "udp client";
 }
 
-std::string udp_socket_d::to_string() const noexcept {
-	return "udp server (" + std::string(local_info) + ')';
+void server_udp_socket_d::bind_private(const endpoint & address, std::int32_t flags) {
+	if (flags & socket_flags::reuse_port) {
+		int opt = 1;
+		setsockopt(handle, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+	}
+	if (::bind(handle, &address.sock_addr(), address.sock_len()) == -1)
+		sys_error("failed to bind a udp socket");
 }
 
-int udp_socket_d::read(byte_t bytes[], size_t length, endpoint_info * remote_endpoint) {
-	static const socklen_t sockaddr_len = sizeof(sockaddr_in6);
-	byte_t sockaddr_data[sockaddr_len];
-	sockaddr * sockaddr_info = reinterpret_cast<sockaddr *>(sockaddr_data);
-	socklen_t actual_len = sockaddr_len;
-	int r = recvfrom(handle, bytes, length, 0, sockaddr_info, &actual_len);
-	if (r < 0)
-		throw std::system_error(std::make_error_code(std::errc(errno)),
-			"failed to read from udp socket");
-	if (remote_endpoint)
-		sockaddr2endpoint(sockaddr_info, *remote_endpoint);
-	return r;
+void server_udp_socket_d::bind(const ipv4::endpoint & address, std::int32_t flags) {
+	open(family_t::ipv4, flags);
+	local_info = address;
+	bind_private(address, flags);
 }
 
-int udp_socket_d::write(const byte_t bytes[], size_t length, const endpoint_info & remote_endpoint) {
-	int r = sendto(handle, bytes, length, 0, &(remote_endpoint.info.addr), sizeof(remote_endpoint.info));
-	if (r < 0)
-		throw std::system_error(std::make_error_code(std::errc(errno)),
-			"failed to send by udp socket");
-	return r;
+void server_udp_socket_d::bind(const ipv6::endpoint & address, std::int32_t flags) {
+	open(family_t::ipv6, flags);
+	local_info = address;
+	bind_private(address, flags);
 }
 
-udp_socket_d::~udp_socket_d() {}
+const endpoint & server_udp_socket_d::local_endpoint() const {
+	check_created();
+	return *get_endpoint(local_info);
+}
 
-} // namespace ekutils
+std::string server_udp_socket_d::to_string() const noexcept {
+	if (*this)
+		return "udp server (" + get_endpoint(local_info)->to_string() + ')';
+	else
+		return "udp server";
+}
+
+} // namespace ekutils::net

@@ -15,10 +15,10 @@ public:
 	}
 };
 
-#define __ekutils_finnaly_internal(line, block) \
+#define __ekutils_finally_internal(line, block) \
 		::ekutils::finalizator __fblock##line([&]() -> void block )
-#define finnaly(block) \
-		__ekutils_finnaly_internal(__LINE__, block)
+#define finally(block) \
+		__ekutils_finally_internal(__LINE__, block)
 
 } // ekutils
 

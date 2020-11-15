@@ -4,69 +4,118 @@
 #include <stdexcept>
 #include <system_error>
 
-#include <unistd.h>
+#include "sys_error.hpp"
+#include "net_utils.hpp"
 
-#include "ekutils/putil.hpp"
-#include "open_listener.hpp"
+namespace ekutils::net {
 
-namespace ekutils {
-
-tcp_socket_d::tcp_socket_d(int fd, const endpoint_info & local, const endpoint_info & remote,
-		sock_flags::flags f) : stream_socket_d(fd, local, remote, f) {}
-
-void tcp_socket_d::open(const std::vector<connection_info> & infos, sock_flags::flags f) {
+void tcp_socket_d::open(family_t family, std::int32_t flags) {
 	close();
-	flags = f;
-	for (const connection_info & info : infos) {
-		handle = socket((int)info.endpoint.addr_family(), info.sock_type |
-			((f & sock_flags::non_blocking) ? SOCK_NONBLOCK : 0), info.protocol);
-		if (handle == -1)
-			continue;
-		if (connect(handle, &info.endpoint.info.addr, info.endpoint.addr_len()) != -1 || errno == EINPROGRESS) {
-			remote_info = info.endpoint;
-			return;
+	m_family = family;
+	handle = socket(int(family), SOCK_STREAM | ((flags & socket_flags::non_block) ? SOCK_NONBLOCK : 0), IPPROTO_TCP);
+	if (handle == -1)
+		sys_error("failed to create tcp socket");
+}
+
+void client_tcp_socket_d::connect_private(const endpoint & address) {
+	if (::connect(handle, &address.sock_addr(), address.sock_len()) == -1 && errno != EINPROGRESS)
+		sys_error("failed to connect to " + address.to_string());
+}
+
+void client_tcp_socket_d::connect(const ipv4::endpoint & address, std::uint32_t f) {
+	open(family_t::ipv4, f);
+	remote_info = address;
+	connect_private(address);
+}
+
+void client_tcp_socket_d::connect(const ipv6::endpoint & address, std::uint32_t f) {
+	open(family_t::ipv6, f);
+	remote_info = address;
+	connect_private(address);
+}
+
+const endpoint * client_tcp_socket_d::try_local_endpoint() const {
+	check_created();
+	if (std::holds_alternative<std::monostate>(local_info)) {
+		initialize_endpoint(local_info, m_family);
+		endpoint * it = get_endpoint(local_info);
+		if (!local_endpoint_of(*it, *this)) {
+			local_info = std::monostate();
+			return nullptr;
 		}
-		::close(handle);
+		return it;
 	}
-	throw std::runtime_error("unable to create socket");
+	return get_endpoint(local_info);
 }
 
-std::string tcp_socket_d::to_string() const noexcept {
-	return "tcp socket (" + std::string(local_info) + " <-> " + std::string(remote_info) + ")";
+const endpoint & client_tcp_socket_d::local_endpoint() const {
+	const endpoint * addr = try_local_endpoint();
+	if (!addr)
+		sys_error("failed to gain local endpoint");
+	return *addr;
 }
 
-tcp_listener_d::tcp_listener_d(sock_flags::flags f) : flags(f), local_info(endpoint_info::empty) {
-	handle = -1;
+const endpoint & client_tcp_socket_d::remote_endpoint() const {
+	check_created();
+	return *get_endpoint(remote_info);
 }
 
-tcp_listener_d::tcp_listener_d(const std::string & address, const std::string & port,
-		sock_flags::flags f) {
-	handle = -1;
-	listen(address, port, f);
+std::string client_tcp_socket_d::to_string() const noexcept {
+	if (*this) {
+		const endpoint * local = try_local_endpoint();
+		return "tcp client (" + (local ? local->to_string() : std::string("?")) + " <-> " + remote_endpoint().to_string() + ")";
+	} else {
+		return "tcp client";
+	}
 }
 
-void tcp_listener_d::listen(const std::string & address, const std::string & port, sock_flags::flags f) {
-	close();
-	flags = f;
-	local_info.setup(endpoint_info::family_t::unknown);
-	handle = open_listener(address, port, local_info, SOCK_STREAM, f);
+
+void server_tcp_socket_d::bind_private(const endpoint & address, std::int32_t flags) {
+	if (flags & socket_flags::reuse_port) {
+		int opt = 1;
+		setsockopt(handle, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+	}
+	if (::bind(handle, &address.sock_addr(), address.sock_len()) == -1)
+		sys_error("failed to bind a udp socket");
 }
 
-std::string tcp_listener_d::to_string() const noexcept {
-	return "tcp listener (" + std::string(local_info) + ')';
+void server_tcp_socket_d::bind(const ipv4::endpoint & address, std::int32_t flags) {
+	open(family_t::ipv4, flags);
+	local_info = address;
+	bind_private(address, flags);
 }
 
-tcp_socket_d tcp_listener_d::accept() {
-	static const socklen_t sockaddr_len = sizeof(sockaddr_in6);
-	byte_t sockaddr_data[sockaddr_len];
-	sockaddr * sockaddr_info = reinterpret_cast<sockaddr *>(sockaddr_data);
-	socklen_t actual_len = sockaddr_len;
-	int client = ::accept(handle, sockaddr_info, &actual_len);
-	if (client < 0)
-		throw std::runtime_error(std::string("failed to accept the tcp socket: ") + std::strerror(errno));
-	endpoint_info socket_endpoint;
-	sockaddr2endpoint(sockaddr_info, socket_endpoint);
-	return tcp_socket_d(client, local_info, socket_endpoint, flags);
+void server_tcp_socket_d::bind(const ipv6::endpoint & address, std::int32_t flags) {
+	open(family_t::ipv6, flags);
+	local_info = address;
+	bind_private(address, flags);
 }
 
-} // namespace ektils
+const endpoint & server_tcp_socket_d::local_endpoint() const {
+	check_created();
+	return *get_endpoint(local_info);
+}
+
+std::string server_tcp_socket_d::to_string() const noexcept {
+	if (*this) {
+		return "tcp server (" + local_endpoint().to_string() + ')';
+	} else {
+		return "tcp server";
+	}
+}
+
+client_tcp_socket_d server_tcp_socket_d::accept() {
+	check_created();
+	net_variant address;
+	initialize_endpoint(address, m_family);
+	endpoint * ptr = get_endpoint(address);
+	socklen_t socklen = ptr->sock_len();
+	int client = ::accept(handle, &ptr->sock_addr(), &socklen);
+	if (client == -1)
+		sys_error("failed to accept the tcp client");
+	client_tcp_socket_d result(client, m_family);
+	result.remote_info = address;
+	return result;
+}
+
+} // namespace ektils::net

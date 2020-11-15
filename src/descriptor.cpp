@@ -45,4 +45,9 @@ descriptor::~descriptor() {
 	close();
 }
 
+void descriptor::check_created() const {
+	if (!*this)
+		throw std::runtime_error("file descriptor not created");
+}
+
 } // namespace ekutils

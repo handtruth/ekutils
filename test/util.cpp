@@ -1,5 +1,5 @@
 #include "ekutils/mutex_atomic.hpp"
-#include "ekutils/putil.hpp"
+#include "ekutils/finally.hpp"
 #include "ekutils/lazy.hpp"
 #include "ekutils/lateinit.hpp"
 
@@ -28,7 +28,7 @@ test {
 	assert_equals(10, int(m));
 	bool was_called = false;
 	{
-		finnaly({
+		finally({
 			was_called = true;
 		});
 		assert_equals(false, was_called);

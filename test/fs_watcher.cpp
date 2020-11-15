@@ -1,7 +1,7 @@
 #include <fstream>
 #include <filesystem>
 #include <ekutils/fs_listener.hpp>
-#include <ekutils/putil.hpp>
+#include <ekutils/finally.hpp>
 
 namespace std {
 	string to_string(const ekutils::fs_listener::event_t & et) {
@@ -32,7 +32,7 @@ test {
 
 	fs::create_directory("fsl_dir");
 	{
-	finnaly({
+	finally({
 		fs::remove_all("fsl_dir");
 		if (fs::exists("fsl_dir2"))
 			fs::remove_all("fsl_dir2");

@@ -2,87 +2,117 @@
 
 #include <cstring>
 #include <stdexcept>
-
 #include <unistd.h>
 #include <sys/socket.h>
 
-#include "open_listener.hpp"
-#include "ekutils/putil.hpp"
+#include "sys_error.hpp"
 
-namespace ekutils {
+namespace ekutils::net {
 
-void setup_un_addrinfo(endpoint_info & info, const std::filesystem::path & path) {
-	sockaddr_un & addr = info.info.addr_un;
-	memset(&addr, 0, sizeof(sockaddr_un));
-	addr.sun_family = AF_UNIX;
-	if (std::strlen(path.c_str()) >= sizeof(addr.sun_path))
-		throw std::runtime_error("path is too big for unix socket: \"" + path.string() + '"');
-	strncpy(addr.sun_path, path.c_str(), sizeof(addr.sun_path) - 1);
-}
-
-unix_stream_socket_d::unix_stream_socket_d(int fd, const endpoint_info & local, const endpoint_info & remote,
-		sock_flags::flags f) : stream_socket_d(fd, local, remote, f) {}
-
-void unix_stream_socket_d::open(const std::filesystem::path & path, sock_flags::flags f) {
+void datagram_unix_socket_d::open(std::int32_t flags) {
 	close();
-	local_info.setup(endpoint_info::family_t::unknown);
-	flags = f;
-	handle = socket(AF_UNIX, SOCK_STREAM | ((f & sock_flags::non_blocking) ? SOCK_NONBLOCK : 0), 0);
-	if (handle == -1) {
-		throw std::system_error(std::make_error_code(std::errc(errno)),
-			"failed create unix socket \"" + path.string() + "\"");
-	}
-	setup_un_addrinfo(remote_info, path);
-	if (connect(handle, &remote_info.info.addr, remote_info.addr_len()) != -1 || errno == EINPROGRESS) {
-		return;
-	}
-	auto code = errno;
-	::close(handle);
-	throw std::system_error(std::make_error_code(std::errc(code)), "failed to connect to unix socket: \"" + path.string() + '"');
-}
-
-std::string unix_stream_socket_d::to_string() const noexcept {
-	return "unix socket (" + std::string(remote_info) + ")";
-}
-
-unix_stream_listener_d::unix_stream_listener_d(sock_flags::flags f) : flags(f), local_info(endpoint_info::empty) {
-	handle = -1;
-}
-
-unix_stream_listener_d::unix_stream_listener_d(const std::filesystem::path & path, sock_flags::flags f) {
-	handle = -1;
-	listen(path, f);
-}
-
-void unix_stream_listener_d::listen(const std::filesystem::path & path, sock_flags::flags f) {
-	close();
-	flags = f;
-	local_info.setup(endpoint_info::family_t::unknown);
-	handle = socket(AF_UNIX, SOCK_STREAM, 0);
+	handle = socket(AF_UNIX, SOCK_DGRAM | ((flags & socket_flags::non_block) ? SOCK_NONBLOCK : 0), 0);
 	if (handle == -1)
-		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to create unix listener socket");
-	setup_un_addrinfo(local_info, path);
-	int status = bind(handle, &local_info.info.addr, local_info.addr_len());
-	if (status == -1)
-		throw std::system_error(std::make_error_code(std::errc(errno)), "failed to bind unix socket: \"" + path.string() + '"');
+		sys_error("failed to create unix datagram socket");
 }
 
-std::string unix_stream_listener_d::to_string() const noexcept {
-	return "unix listener (" + std::string(local_info) + ')';
+std::string client_datagram_unix_socket_t::to_string() const noexcept {
+	return "unix datagram client";
 }
 
-unix_stream_socket_d unix_stream_listener_d::accept() {
-	static const socklen_t sockaddr_len = sizeof(sockaddr_in6);
-	byte_t sockaddr_data[sockaddr_len];
-	sockaddr * sockaddr_info = reinterpret_cast<sockaddr *>(sockaddr_data);
-	socklen_t actual_len = sockaddr_len;
-	int client = ::accept(handle, sockaddr_info, &actual_len);
-	if (client < 0)
-		throw std::runtime_error(std::string("failed to accept the unix socket: ") + std::strerror(errno));
-	endpoint_info socket_endpoint;
-	sockaddr2endpoint(sockaddr_info, socket_endpoint);
-	return unix_stream_socket_d(client, local_info, socket_endpoint, flags);
+void server_datagram_unix_socket_d::bind(const un::endpoint & address, std::int32_t flags) {
+	open(flags);
+	info = address;
+	if (flags & socket_flags::reuse_port) {
+		int opt = 1;
+		setsockopt(handle, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+	}
+	if (::bind(handle, &address.sock_addr(), address.sock_len()) == -1)
+		sys_error("failed to bind a unix socket");
 }
 
-} // namespace ekutils
+const endpoint & server_datagram_unix_socket_d::local_endpoint() const {
+	check_created();
+	return info;
+}
 
+std::string server_datagram_unix_socket_d::to_string() const noexcept {
+	if (*this) {
+		return "unix datagram server (" + local_endpoint().to_string() + ')';
+	} else {
+		return "unix datagram server";
+	}
+}
+
+void stream_unix_socket_d::open(std::int32_t flags) {
+	close();
+	handle = socket(AF_UNIX, SOCK_STREAM | ((flags & socket_flags::non_block) ? SOCK_NONBLOCK : 0), 0);
+	if (handle == -1)
+		sys_error("failed to create unix stream socket");
+}
+
+const endpoint & stream_unix_socket_d::local_endpoint() const {
+	check_created();
+	return info;
+}
+
+void client_stream_unix_socket_d::connect(const un::endpoint & address, std::uint32_t flags) {
+	open(flags);
+	info = address;
+	if (::connect(handle, &address.sock_addr(), address.sock_len()) == -1 && errno != EINPROGRESS)
+		sys_error("failed to connect to " + address.to_string());
+}
+
+const endpoint & client_stream_unix_socket_d::local_endpoint() const {
+	check_created();
+	return info;
+}
+
+const endpoint & client_stream_unix_socket_d::remote_endpoint() const {
+	check_created();
+	return info;
+}
+
+std::string client_stream_unix_socket_d::to_string() const noexcept {
+	if (*this)
+		return "unix stream client (" + info.to_string() + ')';
+	else
+		return "unix stream client";
+}
+
+void server_stream_unix_socket_d::bind(const un::endpoint & address, std::int32_t flags) {
+	open(flags);
+	info = address;
+	if (flags & socket_flags::reuse_port) {
+		int opt = 1;
+		setsockopt(handle, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+	}
+	if (::bind(handle, &address.sock_addr(), address.sock_len()) == -1)
+		sys_error("failed to bind a unix socket");
+}
+
+const endpoint & server_stream_unix_socket_d::local_endpoint() const {
+	check_created();
+	return info;
+}
+
+client_stream_unix_socket_d server_stream_unix_socket_d::accept() {
+	check_created();
+	un::endpoint address;
+	socklen_t socklen = address.sock_len();
+	int client = ::accept(handle, &address.sock_addr(), &socklen);
+	if (client == -1)
+		sys_error("failed to accept the unix client");
+	client_stream_unix_socket_d result(client);
+	result.info = address;
+	return result;
+}
+
+std::string server_stream_unix_socket_d::to_string() const noexcept {
+	if (*this)
+		return "unix stream server (" + info.to_string() + ')';
+	else
+		return "unix stream server";
+}
+
+} // namespace ekutils::net

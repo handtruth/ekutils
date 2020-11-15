@@ -6,6 +6,7 @@ test_names = [
   'inotify',
   'logs',
   'memstream',
+  'network_test',
   'property',
   'reader',
   'reallobuffer',
