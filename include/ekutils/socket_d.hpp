@@ -10,6 +10,7 @@
 #include <array>
 #include <memory>
 #include <system_error>
+#include <chrono>
 
 #include <ekutils/descriptor.hpp>
 #include <ekutils/primitives.hpp>
@@ -178,6 +179,42 @@ enum class protocols {
 struct socket_d : public virtual descriptor {
 	socket_d & operator=(socket_d && other) = delete;
 	std::errc last_error() const;
+
+	void recv_timeout(std::uint64_t seconds, std::uint64_t micros);
+	void send_timeout(std::uint64_t seconds, std::uint64_t micros);
+
+private:
+	template <typename Rep, typename Period>
+	void destruct_time(std::uint64_t & secs, std::uint64_t & micros, std::chrono::duration<Rep, Period> span) {
+		using namespace std::chrono;
+		seconds span_sec = duration_cast<seconds>(span);
+		secs = static_cast<unsigned long>(span_sec.count());
+		micros = static_cast<unsigned long>(duration_cast<microseconds>(span_sec - floor<seconds>(span_sec)).count());
+	}
+
+public:
+	template <typename Rep, typename Period>
+	void recv_timeout(std::chrono::duration<Rep, Period> span) {
+		std::uint64_t secs, micros;
+		destruct_time(secs, micros, span);
+		recv_timeout(secs, micros);
+	}
+
+	template <typename Rep, typename Period>
+	void send_timeout(std::chrono::duration<Rep, Period> span) {
+		std::uint64_t secs, micros;
+		destruct_time(secs, micros, span);
+		send_timeout(secs, micros);
+	}
+
+	template <typename Rep, typename Period>
+	void timeout(std::chrono::duration<Rep, Period> span) {
+		std::uint64_t secs, micros;
+		destruct_time(secs, micros, span);
+		recv_timeout(secs, micros);
+		send_timeout(secs, micros);
+	}
+	
 	virtual family_t family() const noexcept = 0;
 	virtual socket_types type() const noexcept = 0;
 };

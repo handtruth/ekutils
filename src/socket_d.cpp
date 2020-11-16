@@ -134,6 +134,25 @@ std::errc socket_d::last_error() const {
 	return std::errc(err);
 }
 
+inline void set_timeout(socket_d & socket, std::uint64_t seconds, std::uint64_t micros, int type) {
+	timeval timeout;      
+	timeout.tv_sec = seconds;
+	timeout.tv_usec = micros;
+	if (setsockopt(socket.fd(), SOL_SOCKET, type, (char *)&timeout, sizeof(timeout)) == -1) {
+		throw std::system_error(std::make_error_code(std::errc(errno)),
+			"failed to set timeout: " + socket.to_string());
+	}
+
+}
+
+void socket_d::recv_timeout(std::uint64_t seconds, std::uint64_t micros) {
+	set_timeout(*this, seconds, micros, SO_RCVTIMEO);
+}
+
+void socket_d::send_timeout(std::uint64_t seconds, std::uint64_t micros) {
+	set_timeout(*this, seconds, micros, SO_SNDTIMEO);
+}
+
 int datagram_socket_d::read(byte_t bytes[], std::size_t length) {
 	check_created();
 	int r = recvfrom(handle, bytes, length, 0, nullptr, nullptr);
