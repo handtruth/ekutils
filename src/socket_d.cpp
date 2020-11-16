@@ -1,6 +1,7 @@
 #include "ekutils/socket_d.hpp"
 
 #include <arpa/inet.h>
+#include <sys/time.h>
 #include <cstring>
 #include <cassert>
 
