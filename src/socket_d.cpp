@@ -26,12 +26,16 @@ namespace ipv4 {
 
 address::address(const std::string_view & str) {
 	constexpr std::size_t length = INET_ADDRSTRLEN;
-	if (str.size() != length - 1)
-		throw std::runtime_error("wrong ipv4 address size");
+	if (str.size() > length - 1)
+		throw std::invalid_argument("wrong ipv4 address size");
 	char buffer[length];
-	std::memcpy(buffer, str.data(), length);
-	buffer[length - 1] = '\0';
-	inet_pton(AF_INET, buffer, &data);
+	std::memcpy(buffer, str.data(), str.size());
+	buffer[str.size()] = '\0';
+	int r = inet_pton(AF_INET, buffer, &data);
+	if (r == -1)
+		sys_error("parsing ipv4 address");
+	if (!r)
+		throw std::invalid_argument("wrong ipv4 address format");
 }
 
 std::string address::to_string() const {
@@ -66,11 +70,15 @@ address::address(const in6_addr & other) {
 address::address(const std::string_view & str) {
 	constexpr std::size_t length = INET6_ADDRSTRLEN;
 	if (str.size() > length - 1)
-		throw std::runtime_error("wrong ipv6 address size");
+		throw std::invalid_argument("wrong ipv6 address size");
 	char buffer[length];
 	std::memcpy(buffer, str.data(), str.size());
 	buffer[str.size()] = '\0';
-	inet_pton(AF_INET6, buffer, data.data());
+	int r = inet_pton(AF_INET6, buffer, data.data());
+	if (r == -1)
+		sys_error("parsing ipv6 address");
+	if (!r)
+		throw std::invalid_argument("wrong ipv6 address format");
 }
 
 std::string address::to_string() const {

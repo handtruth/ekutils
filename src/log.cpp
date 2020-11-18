@@ -63,4 +63,7 @@ log_level str2loglvl(const std::string & verb) {
 	throw std::runtime_error("no such log level: " + verb);
 }
 
+fatal_error::fatal_error(const std::exception & other) :
+m_message(typeid(other).name() + std::string(": ") + other.what()) {}
+
 } // namespace ekutils

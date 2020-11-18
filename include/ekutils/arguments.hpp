@@ -158,6 +158,8 @@ struct arguments {
 
 	std::vector<std::string> positional;
 
+	bool single_tilda = false;
+
 private:
 	typedef std::forward_list<std::unique_ptr<argument>> arg_list_type;
 

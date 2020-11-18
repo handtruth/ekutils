@@ -27,6 +27,7 @@ install_headers([
   'ekutils/out_stream_d.hpp',
   'ekutils/parse_essentials.hpp',
   'ekutils/pipe_d.hpp',
+  'ekutils/pocket.hpp',
   'ekutils/primitives.hpp',
   'ekutils/process.hpp',
   'ekutils/property.hpp',

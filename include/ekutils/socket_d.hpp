@@ -48,6 +48,9 @@ struct address final {
 	constexpr operator in_addr_t() const noexcept {
 		return data;
 	}
+	bool operator==(const address & other) const noexcept {
+		return data == other.data;
+	}
 };
 
 static constexpr address loopback = INADDR_LOOPBACK;
@@ -92,6 +95,9 @@ struct address final {
 	address(const std::string_view & str);
 	std::string to_string() const;
 	operator in6_addr() const noexcept;
+	bool operator==(const address & other) const noexcept {
+		return data == other.data;
+	}
 };
 
 inline const address loopback = in6addr_loopback;

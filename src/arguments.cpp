@@ -166,14 +166,19 @@ void arguments::parse(int argc, const char * argv[]) {
 				}
 			}
 		} else if (word[0] == '-') {
-			// short flags
-			for (const char * ptr = word + 1; *ptr; ++ptr) {
-				char c = *ptr;
-				auto found = flags.find(c);
-				if (found == flags.end())
-					throw arguments_parse_error(std::string("unknown flag '") + c + '\'');
-				flag & f = found->second;
-				f.value = true;
+			if (word[1] == '\0') {
+				// single '-' symbol
+				single_tilda = true;
+			} else {
+				// short flags
+				for (const char * ptr = word + 1; *ptr; ++ptr) {
+					char c = *ptr;
+					auto found = flags.find(c);
+					if (found == flags.end())
+						throw arguments_parse_error(std::string("unknown flag '") + c + '\'');
+					flag & f = found->second;
+					f.value = true;
+				}
 			}
 		} else {
 			// positional argument

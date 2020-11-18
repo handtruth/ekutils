@@ -10,8 +10,9 @@ class idgen {
 public:
 	typedef ID id_type;
 private:
-	std::atomic<id_type> i = id_type(0);
+	std::atomic<id_type> i;
 public:
+	idgen(const id_type & initial = id_type(0)) : i(initial) {}
 	id_type next() {
 		return i++;
 	}

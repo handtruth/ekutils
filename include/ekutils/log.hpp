@@ -103,7 +103,15 @@ extern log_base * log;
 
 log_level str2loglvl(const std::string & verb);
 
-} // namespace ekutils
+class fatal_error : public std::exception {
+	std::string m_message;
+public:
+	explicit fatal_error(const std::string & message) : m_message(message) {}
+	explicit fatal_error(const std::exception & other);
+	virtual const char * what() const noexcept override {
+		return m_message.c_str();
+	}
+};
 
 #define log_something(lvl, subject) \
 		do { \
@@ -111,8 +119,22 @@ log_level str2loglvl(const std::string & verb);
 				::ekutils::log->lvl(subject); \
 		} while (0)
 
+[[noreturn]]
+inline int log_fatal_helper(const std::string & subject) {
+	log_something(fatal, subject);
+	throw ::ekutils::fatal_error(subject);
+}
+
+[[noreturn]]
+inline int log_fatal_helper(const std::exception & subject) {
+	log_something(fatal, subject);
+	throw ::ekutils::fatal_error(subject);
+}
+
+} // namespace ekutils
+
 #define log_fatal(subject) \
-		log_something(fatal, subject)
+		(throw ::ekutils::log_fatal_helper(subject))
 
 #define log_error(subject) \
 		log_something(error, subject)
