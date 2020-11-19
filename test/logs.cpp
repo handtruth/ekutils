@@ -8,7 +8,9 @@ void log_this() {
     log_info("INFO");
     log_warning("WARNING");
     log_error("ERROR");
-    log_fatal("FATAL");
+    assert_fails_with(ekutils::fatal_error, {
+        log_fatal("FATAL");
+    });
 }
 
 test {
