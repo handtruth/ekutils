@@ -83,7 +83,7 @@ struct client_stream_unix_socket_d final : public stream_unix_socket_d, public s
 
 private:
 	client_stream_unix_socket_d(handle_t fd) : descriptor(fd) {}
-	friend class server_stream_unix_socket_d;
+	friend struct server_stream_unix_socket_d;
 };
 
 struct server_stream_unix_socket_d final : public stream_unix_socket_d, public stream_server_socket_d {

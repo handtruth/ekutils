@@ -2,6 +2,8 @@ includes = include_directories('.')
 
 install_headers([
   'ekutils/arguments.hpp',
+  'ekutils/bag.hpp',
+  'ekutils/beside.hpp',
   'ekutils/cli.hpp',
   'ekutils/delegate.hpp',
   'ekutils/descriptor.hpp',
@@ -17,6 +19,8 @@ install_headers([
   'ekutils/in_stream_d.hpp',
   'ekutils/inotify_d.hpp',
   'ekutils/io_stream.hpp',
+  'ekutils/ip_filter.hpp',
+  'ekutils/ip_space.hpp',
   'ekutils/io_stream_d.hpp',
   'ekutils/lateinit.hpp',
   'ekutils/lazy.hpp',
@@ -37,6 +41,7 @@ install_headers([
   'ekutils/resolver.hpp',
   'ekutils/signal_d.hpp',
   'ekutils/socket_d.hpp',
+  'ekutils/space.hpp',
   'ekutils/stderr_d.hpp',
   'ekutils/stdin_d.hpp',
   'ekutils/stdout_d.hpp',

@@ -25,7 +25,7 @@ public:
 std::forward_list<resolution> resolve(const std::string & host, const std::string & port, socket_types type, protocols protocol);
 std::forward_list<resolution> resolve(const std::string & host, const std::string & port, protocols protocol);
 std::forward_list<resolution> resolve(const std::string & host, const std::string & port, socket_types type);
-std::forward_list<resolution> resolve(socket_types type, const uri & address);
+std::forward_list<resolution> resolve(socket_types type, const uri & address, std::uint16_t default_port = 0);
 
 std::unique_ptr<stream_socket_d> connect(const resolution & target, std::uint32_t flags = socket_flags::nothing);
 std::unique_ptr<datagram_socket_d> prepare(const resolution & target, std::uint32_t flags = socket_flags::nothing);

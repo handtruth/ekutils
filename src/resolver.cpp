@@ -68,16 +68,19 @@ std::forward_list<resolution> resolve(const std::string & host, const std::strin
 	return resolve(host, port, type, protocol);
 }
 
-std::forward_list<resolution> resolve(socket_types type, const uri & address) {
+std::forward_list<resolution> resolve(socket_types type, const uri & address, std::uint16_t default_port) {
 	const auto & scheme = address.get_scheme();
+	auto port = address.get_port();
+	if (port == -1)
+		port = default_port;
 	if (scheme == "udp") {
 		if (type == socket_types::stream)
 			throw resolver_error("udp is not a stream protocol");
-		return resolve(address.get_host(), std::to_string(address.get_port()), socket_types::datagram, protocols::udp);
+		return resolve(address.get_host(), std::to_string(port), socket_types::datagram, protocols::udp);
 	} else if (scheme == "tcp") {
 		if (type == socket_types::datagram)
 			throw resolver_error("tcp is not a datagram protocol");
-		return resolve(address.get_host(), std::to_string(address.get_port()), socket_types::stream, protocols::tcp);
+		return resolve(address.get_host(), std::to_string(port), socket_types::stream, protocols::tcp);
 	} else if (scheme == "unix") {
 		if (type == socket_types::unknown)
 			throw resolver_error("unable to deduce unix socket type");

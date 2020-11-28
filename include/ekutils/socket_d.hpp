@@ -15,8 +15,43 @@
 #include <ekutils/descriptor.hpp>
 #include <ekutils/primitives.hpp>
 #include <ekutils/io_stream_d.hpp>
+#include <ekutils/beside.hpp>
 
 namespace ekutils::net {
+
+inline bool is_big_endian_f() {
+    union {
+        std::uint16_t i;
+        char c[2];
+    } bint = { 0x01000 };
+    return bint.c[0];
+}
+
+static const bool is_big_endian = is_big_endian_f();
+
+template <typename int_t>
+int_t hton(int_t integer) {
+	if (is_big_endian) {
+		return integer;
+	} else {
+		constexpr std::size_t size = sizeof(int_t);
+		union {
+			int_t full;
+			byte_t bytes[size];
+		} number { integer };
+		for (std::size_t i = 0; i < size/2; i++) {
+			byte_t tmp = number.bytes[i];
+			number.bytes[i] = number.bytes[size - i - 1];
+			number.bytes[size - i - 1] = tmp;
+		}
+		return number.full;
+	}
+}
+
+template <typename int_t>
+int_t ntoh(int_t integer) {
+	return hton(integer);
+}
 
 enum class family_t {
 	unknown = AF_UNSPEC,
@@ -50,6 +85,18 @@ struct address final {
 	}
 	bool operator==(const address & other) const noexcept {
 		return data == other.data;
+	}
+	bool operator<(const address & other) const noexcept {
+		return ntoh(data) < ntoh(other.data);
+	}
+	bool operator>(const address & other) const noexcept {
+		return ntoh(data) > ntoh(other.data);
+	}
+	bool operator<=(const address & other) const noexcept {
+		return ntoh(data) <= ntoh(other.data);
+	}
+	bool operator>=(const address & other) const noexcept {
+		return ntoh(data) >= ntoh(other.data);
 	}
 };
 
@@ -97,6 +144,18 @@ struct address final {
 	operator in6_addr() const noexcept;
 	bool operator==(const address & other) const noexcept {
 		return data == other.data;
+	}
+	bool operator<(const address & other) const noexcept {
+		return data < other.data;
+	}
+	bool operator>(const address & other) const noexcept {
+		return data > other.data;
+	}
+	bool operator<=(const address & other) const noexcept {
+		return data <= other.data;
+	}
+	bool operator>=(const address & other) const noexcept {
+		return data >= other.data;
 	}
 };
 
@@ -269,5 +328,49 @@ namespace socket_flags {
 }
 
 } // namespace ekutils::net
+
+namespace ekutils {
+
+template<>
+struct beside<net::ipv4::address> {
+	bool operator()(const net::ipv4::address & a, const net::ipv4::address & b) const noexcept {
+		return net::ntoh(a.data) + 1 == net::ntoh(b.data);
+	}
+};
+
+template<>
+struct beside<net::ipv6::address> {
+	bool operator()(const net::ipv6::address & a, const net::ipv6::address & b) const noexcept;
+};
+
+} // namespace ekutils
+
+namespace std {
+
+template<>
+struct hash<ekutils::net::ipv4::address> {
+	std::size_t operator()(const ekutils::net::ipv4::address & address) const noexcept {
+		return address.data;
+	}
+};
+
+template<>
+struct hash<ekutils::net::ipv6::address> {
+	std::size_t operator()(const ekutils::net::ipv6::address & address) const noexcept {
+		uint64_t most = *reinterpret_cast<const uint64_t *>(address.data.data());
+		uint64_t least = *reinterpret_cast<const uint64_t *>(address.data.data() + 8);
+		return most ^ least;
+	}
+};
+
+inline string to_string(const ekutils::net::ipv4::address & address) {
+	return address.to_string();
+}
+
+inline string to_string(const ekutils::net::ipv6::address & address) {
+	return address.to_string();
+}
+
+} // namespace std
 
 #endif // SOCKET_D_HEAD_UJTGRFRCGTHJU

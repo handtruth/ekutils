@@ -123,7 +123,7 @@ std::string_view::const_iterator uri::parse_scheme(std::string_view const &uri_t
         error += "\".";
         throw std::invalid_argument(error);
     }
-    m_scheme = std::move(std::string(scheme_start, scheme_end));
+    m_scheme = std::string(scheme_start, scheme_end);
     return scheme_end;
 }
 
@@ -167,7 +167,7 @@ std::string_view::const_iterator uri::parse_content(std::string_view const &uri_
 
         // We can now build the path based on what remains in the content string,
         // since that's all that exists after the host and optional port component.
-        m_path = std::move(std::string(path_start, path_end));
+        m_path = std::string(path_start, path_end);
     }
     return content_end;
 }
@@ -227,7 +227,7 @@ std::string::const_iterator uri::parse_host(std::string_view const &uri_text, st
             ++host_end;
         }
     }
-    m_host = std::move(std::string(host_start, host_end));
+    m_host = std::string(host_start, host_end);
     return host_end;
 }
 

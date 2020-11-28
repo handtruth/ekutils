@@ -11,6 +11,7 @@ sources = files([
   'imem_stream.cpp',
   'in_stream_d.cpp',
   'inotify_d.cpp',
+  'ip_space.cpp',
   'log.cpp',
   'net_utils.cpp',
   'omem_stream.cpp',

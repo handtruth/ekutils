@@ -211,3 +211,18 @@ void stream_server_socket_d::listen(int backlog) {
 }
 
 } // namespace ekutils::net
+
+namespace ekutils {
+
+bool beside<net::ipv6::address>::operator()(const net::ipv6::address & a, const net::ipv6::address & b) const noexcept {
+	net::ipv6::address c = a;
+	for (int i = 15; i >= 0; --i) {
+		unsigned octet = c.data[i] + 1;
+		c.data[i] = static_cast<std::uint8_t>(octet);
+		if (!(octet & 256))
+			break;
+	}
+	return c == b;
+}
+
+}
