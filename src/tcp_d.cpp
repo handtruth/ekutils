@@ -93,6 +93,9 @@ void server_tcp_socket_d::bind(const ipv6::endpoint & address, std::int32_t flag
 
 const endpoint & server_tcp_socket_d::local_endpoint() const {
 	check_created();
+	auto & endpoint = *get_endpoint(local_info);
+	auto socklen = endpoint.sock_len();
+	getsockname(handle, &endpoint.sock_addr(), &socklen);
 	return *get_endpoint(local_info);
 }
 

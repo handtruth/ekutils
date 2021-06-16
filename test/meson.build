@@ -2,6 +2,7 @@ test_names = [
   'arguments_test',
   'cli',
   'dynamic',
+  'event_d_test',
   'fs_watcher',
   'inotify',
   'logs',
