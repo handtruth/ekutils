@@ -2,6 +2,7 @@
 #define _EKUTILS_WRITER_HEAD
 
 #include <limits>
+#include <string>
 
 #include <ekutils/out_stream.hpp>
 

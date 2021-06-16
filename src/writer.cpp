@@ -1,6 +1,7 @@
 #include "ekutils/writer.hpp"
 
 #include <cstring>
+#include <stdexcept>
 
 namespace ekutils {
 
