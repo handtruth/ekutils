@@ -2,7 +2,7 @@
 
 #include "ekutils/cli.hpp"
 
-using namespace ekutils;
+using namespace handtruth::ekutils;
 
 struct example_form : public cli_form {
 	std::string fieldA;

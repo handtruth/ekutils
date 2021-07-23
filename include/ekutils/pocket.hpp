@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <typename T>
 class pocket {
@@ -38,6 +38,6 @@ public:
 	}
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // POCKET_HEAD_WCBDEWACCDVPO

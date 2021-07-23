@@ -3,7 +3,7 @@
 
 #include <atomic>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <typename ID>
 class idgen {
@@ -18,6 +18,6 @@ public:
 	}
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // _IDGEN_HEAD

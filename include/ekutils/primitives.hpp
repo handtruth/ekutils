@@ -3,10 +3,10 @@
 
 #include <cinttypes>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
     typedef std::uint8_t byte_t;
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // _PRIMITIVES_HEAD

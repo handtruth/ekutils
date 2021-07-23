@@ -8,7 +8,7 @@
 
 #include <ekutils/primitives.hpp>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <typename T>
 class lazy {
@@ -43,6 +43,6 @@ public:
 	operator const T &() const { return get(); }
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // LAZY_HEAD_FEDWDBYK

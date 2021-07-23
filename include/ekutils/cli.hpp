@@ -10,9 +10,9 @@
 #include <functional>
 #include <vector>
 
-#include <ekutils/delegate.hpp>
+#include <ekutils/callable.hpp>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 class cli_node;
 typedef std::shared_ptr<cli_node> cli_node_ptr;
@@ -163,13 +163,11 @@ protected:
 };
 
 class action_cli_node : public action_base_cli_node {
-	std::unique_ptr<delegate_base<void(std::unordered_map<std::string, cli_form_ptr> &)>> func;
+	delegate<void(std::unordered_map<std::string, cli_form_ptr> &)> func;
 	std::string message;
 public:
-	template <typename F>
-	action_cli_node(F act, const std::string & description) :
-		func(std::make_unique<delegate_t<F, void(std::unordered_map<std::string, cli_form_ptr> &)>>(act)),
-		message(description) {}
+	action_cli_node(delegate<void(std::unordered_map<std::string, cli_form_ptr> &)> && act, const std::string & description) :
+		func(std::move(act)), message(description) {}
 	virtual std::string description() override;
 protected:
 	virtual void action(std::unordered_map<std::string, cli_form_ptr> & forms) override;
@@ -189,6 +187,6 @@ std::shared_ptr<action_cli_node> choice_cli_node::action(const std::string & nam
 	return ptr;
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // _MCSHUBCLI_HEAD

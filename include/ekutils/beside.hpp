@@ -1,7 +1,7 @@
 #ifndef BESIDE_HEAD_FRVLMWDMKPK
 #define BESIDE_HEAD_FRVLMWDMKPK
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <typename T>
 struct beside {
@@ -10,6 +10,6 @@ struct beside {
 	}
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // BESIDE_HEAD_FRVLMWDMKPK

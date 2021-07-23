@@ -8,7 +8,7 @@
 #include <fstream>
 #include <mutex>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 enum class log_level {
 	none, fatal, error, warning, info, verbose, debug
@@ -115,26 +115,26 @@ public:
 
 #define log_something(lvl, subject) \
 		do { \
-			if (int(::ekutils::log_level::lvl) <= int(::ekutils::log->log_lvl())) \
-				::ekutils::log->lvl(subject); \
+			if (int(::handtruth::ekutils::log_level::lvl) <= int(::handtruth::ekutils::log->log_lvl())) \
+				::handtruth::ekutils::log->lvl(subject); \
 		} while (0)
 
 [[noreturn]]
 inline int log_fatal_helper(const std::string & subject) {
 	log_something(fatal, subject);
-	throw ::ekutils::fatal_error(subject);
+	throw ::handtruth::ekutils::fatal_error(subject);
 }
 
 [[noreturn]]
 inline int log_fatal_helper(const std::exception & subject) {
 	log_something(fatal, subject);
-	throw ::ekutils::fatal_error(subject);
+	throw ::handtruth::ekutils::fatal_error(subject);
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #define log_fatal(subject) \
-		(throw ::ekutils::log_fatal_helper(subject))
+		(throw ::handtruth::ekutils::log_fatal_helper(subject))
 
 #define log_error(subject) \
 		log_something(error, subject)

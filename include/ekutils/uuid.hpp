@@ -6,7 +6,7 @@
 
 #include <ekutils/primitives.hpp>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 struct uuid {
 	union {
@@ -22,6 +22,6 @@ struct uuid {
 	operator std::string() const;
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // _UUID_HEAD

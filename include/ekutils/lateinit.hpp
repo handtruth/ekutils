@@ -4,7 +4,7 @@
 #include <optional>
 #include <stdexcept>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <typename T>
 class lateinit {
@@ -55,6 +55,6 @@ public:
 	}
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // LATEINIT_HEAD_GNNFBDFT

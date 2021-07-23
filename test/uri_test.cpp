@@ -6,7 +6,7 @@
 #include <string>
 #include <ekutils/uri.hpp>
 
-using ekutils::uri;
+using handtruth::ekutils::uri;
 
 void test_call(bool succeeded, char const *what)
 {

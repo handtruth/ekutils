@@ -1,21 +1,11 @@
 test_names = [
   'arguments_test',
   'cli',
+  'delegate',
   'dynamic',
-  'event_d_test',
-  'fs_watcher',
-  'inotify',
   'logs',
-  'memstream',
-  'network_test',
-  'property',
-  'reader',
-  'reallobuffer',
-  'sh_process',
-  'space_test',
   'uri_test',
   'util',
-  'writer_test'
 ]
 
 test_files = []

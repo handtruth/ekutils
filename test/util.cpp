@@ -22,7 +22,7 @@ struct hehoh : public base_t {
 };
 
 test {
-	using namespace ekutils;
+	using namespace handtruth::ekutils;
 	matomic<int> m;
 	m = 10;
 	assert_equals(10, int(m));

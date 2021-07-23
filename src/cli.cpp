@@ -4,7 +4,7 @@
 
 #include "ekutils/parse_essentials.hpp"
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 cli_form::~cli_form() {
 
@@ -241,7 +241,7 @@ std::string action_cli_node::description() {
 }
 
 void action_cli_node::action(std::unordered_map<std::string, cli_form_ptr> & forms) {
-	func->operator()(forms);
+	func(forms);
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils

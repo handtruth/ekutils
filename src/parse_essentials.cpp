@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 std::size_t find_escaped_end(const char * str) {
 	std::size_t length = 0;
@@ -64,4 +64,4 @@ std::string unescape(const char * str, std::size_t length) {
 	return result;
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <limits>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 const std::array<const std::string, (int)log_level::debug + 1> lvl_strs {
 	"none", "fatal", "error", "warning", "info", "verbose", "debug"
@@ -66,4 +66,4 @@ log_level str2loglvl(const std::string & verb) {
 fatal_error::fatal_error(const std::exception & other) :
 m_message(typeid(other).name() + std::string(": ") + other.what()) {}
 
-} // namespace ekutils
+} // namespace handtruth::ekutils

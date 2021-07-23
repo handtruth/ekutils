@@ -3,7 +3,7 @@
 
 #include <shared_mutex>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <typename T>
 class matomic {
@@ -33,7 +33,7 @@ public:
 	}
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 
 #endif // _MUTEX_ATOMIC_HEAD

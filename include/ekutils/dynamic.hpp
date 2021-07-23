@@ -8,7 +8,7 @@
 #include <memory>
 #include <iterator>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 class dynamic final {
 public:
@@ -224,13 +224,11 @@ public:
 	}
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 namespace std {
 
-
-
-string to_string(const ekutils::dynamic & obj);
+string to_string(const handtruth::ekutils::dynamic & obj);
 
 } // namespace std
 

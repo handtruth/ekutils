@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 void arguments::integer::parse_value(const std::string_view & str) {
 	if (str.empty())
@@ -309,4 +309,4 @@ void arguments::fill_from(const arguments & other) {
 	}
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils

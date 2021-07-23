@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 inline std::uint64_t urand32() {
 	return static_cast<std::uint64_t>(std::rand());
@@ -48,4 +48,4 @@ uuid::operator std::string() const {
 	return std::string(result, 36);
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils

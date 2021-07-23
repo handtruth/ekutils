@@ -5,7 +5,7 @@
 
 #include <ekutils/primitives.hpp>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 class expandbuff {
 	byte_t * bytes;
@@ -47,6 +47,6 @@ public:
 	~expandbuff();
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // _EXPANDBUFF_HEAD

@@ -4,6 +4,8 @@
 
 #include "test.hpp"
 
+using namespace handtruth;
+
 struct testargs : public ekutils::arguments {
 	std::string & test_str;
 	bool & test_flag;

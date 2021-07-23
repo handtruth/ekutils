@@ -5,7 +5,7 @@
 
 #include <ekutils/beside.hpp>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <
 	typename T,
@@ -157,6 +157,6 @@ public:
 	}
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // SPACE_HEAD_FVEFCPGDMC

@@ -4,7 +4,7 @@
 #include "test.hpp"
 
 test {
-    using namespace ekutils;
+    using namespace handtruth::ekutils;
 
     dynamic obj;
 

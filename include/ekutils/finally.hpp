@@ -1,7 +1,7 @@
 #ifndef _PUTIL_HEAD
 #define _PUTIL_HEAD
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <typename F>
 class finalizator {
@@ -16,10 +16,10 @@ public:
 };
 
 #define __ekutils_finally_internal(line, block) \
-		::ekutils::finalizator __fblock##line([&]() -> void block )
+		::handtruth::ekutils::finalizator __fblock##line([&]() -> void { block })
 #define finally(block) \
 		__ekutils_finally_internal(__LINE__, block)
 
-} // ekutils
+} // handtruth::ekutils
 
 #endif // _PUTIL_HEAD

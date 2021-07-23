@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 struct argument {
 	std::string name;
@@ -203,8 +203,6 @@ public:
 	}
 };
 
-
-
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // ARGUMENTS_HEAD_PQOOVKKDKGM

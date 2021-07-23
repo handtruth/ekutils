@@ -1,6 +1,6 @@
 #include "ekutils/uri.hpp"
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 uri::uri(
     std::map<component, std::string> const &components,
@@ -318,4 +318,4 @@ std::string uri::to_string() const {
     return full_uri;
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils

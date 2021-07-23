@@ -8,13 +8,13 @@ void log_this() {
     log_info("INFO");
     log_warning("WARNING");
     log_error("ERROR");
-    assert_fails_with(ekutils::fatal_error, {
+    assert_fails_with(handtruth::ekutils::fatal_error, {
         log_fatal("FATAL");
     });
 }
 
 test {
-    using namespace ekutils;
+    using namespace handtruth::ekutils;
     log->set_log_level(log_level::debug);
     log_this();
     

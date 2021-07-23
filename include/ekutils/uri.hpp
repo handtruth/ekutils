@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 class uri {
 	/* URIs are broadly divided into two categories: hierarchical and
@@ -199,6 +199,6 @@ private:
 	std::multimap<std::string, std::string> m_query_dict;
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // URI_HEAD_QPVKFKEQDSFSD

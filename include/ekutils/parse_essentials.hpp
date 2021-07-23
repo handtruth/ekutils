@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <string>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <char oppening>
 constexpr inline char get_closing_bracket() {
@@ -103,6 +103,6 @@ int find_char(const char * str, std::size_t length) {
 	return -1;
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // _PARSE_ESSENTIALS_HEAD

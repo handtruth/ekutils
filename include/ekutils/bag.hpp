@@ -3,7 +3,7 @@
 
 #include <forward_list>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 template <typename T>
 class bag {
@@ -30,6 +30,6 @@ public:
 	}
 };
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
 
 #endif // BAG_HEAD_GIGCFTHCWDZCXVCB

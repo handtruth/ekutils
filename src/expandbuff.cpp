@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-namespace ekutils {
+namespace handtruth::ekutils {
 
 expandbuff::expandbuff(std::size_t size) : sz(0), allocated(size) {
 	if (size)
@@ -50,4 +50,4 @@ expandbuff::~expandbuff() {
 	std::free(bytes);
 }
 
-} // namespace ekutils
+} // namespace handtruth::ekutils
